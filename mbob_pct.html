@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mbob% — Fractions &amp; Percentages</title>
+<style>
+
+:root {
+  --bg: #0a1f0a; --card: #0f2d12; --accent: #44ff88; --accent2: #ffdd44;
+  --gold: #ffee88; --text: #eaffea; --muted: #6a9970;
+  --danger: #ff4466; --good: #44ffaa; --rad: 20px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  min-height: 100vh; font-family: -apple-system,'Helvetica Neue',Arial,sans-serif;
+  background: var(--bg); color: var(--text);
+  background-image:
+    radial-gradient(ellipse at 10% 10%, rgba(20,80,30,0.6) 0%, transparent 55%),
+    radial-gradient(ellipse at 90% 90%, rgba(10,50,60,0.5) 0%, transparent 55%);
+}
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(100,255,150,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 28% 42%, rgba(100,255,150,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 62% 12%, rgba(255,220,100,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 78% 58%, rgba(100,255,150,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 28%, rgba(255,220,100,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 42% 82%, rgba(100,255,150,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 18% 72%, rgba(255,220,100,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 88%, rgba(100,255,150,0.2) 0%, transparent 100%);
+}
+.game-wrap { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:28px 22px 50px; min-height:100vh; }
+.screen { display:none; }
+.screen.active { display:block; }
+.logo {
+  font-weight:800; font-size:3rem; text-align:center;
+  background:linear-gradient(135deg, var(--accent), var(--accent2), #ff88cc);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  letter-spacing:3px; filter:drop-shadow(0 0 22px rgba(68,255,136,0.4));
+}
+.tagline { text-align:center; color:var(--muted); font-size:0.85rem; margin-bottom:22px; }
+.prog-wrap { background:rgba(255,255,255,0.06); border-radius:999px; height:9px; margin-bottom:5px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); }
+.prog-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width 0.5s cubic-bezier(0.4,0,0.2,1); box-shadow:0 0 10px rgba(68,255,136,0.5); }
+.prog-label { font-size:0.72rem; color:var(--muted); text-align:right; margin-bottom:14px; }
+.lives-row { display:flex; gap:6px; align-items:center; margin-bottom:12px; }
+.heart { font-size:1.3rem; transition:transform 0.3s,filter 0.3s; }
+.heart.lost { filter:grayscale(1); opacity:0.25; transform:scale(0.75); }
+.lives-label { font-size:0.72rem; color:var(--muted); margin-left:4px; }
+.mbob-stage {
+  background:rgba(255,255,255,0.025); border:1px solid rgba(68,255,136,0.12);
+  border-radius:var(--rad); padding:16px 16px 10px; margin-bottom:16px;
+  display:flex; flex-direction:column; align-items:center;
+  box-shadow:0 8px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(68,255,136,0.08);
+}
+.mbob-stage-title { font-size:0.65rem; text-transform:uppercase; letter-spacing:3px; color:var(--muted); margin-bottom:8px; }
+#mbob-canvas { display:block; border-radius:12px; }
+.traits-row { display:flex; flex-wrap:wrap; gap:4px; margin-top:10px; justify-content:center; }
+.trait-chip { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.09); border-radius:999px; padding:2px 9px; font-size:0.62rem; color:var(--muted); }
+.trait-chip.unlocked { background:rgba(68,255,136,0.1); border-color:rgba(68,255,136,0.4); color:var(--accent); }
+.q-card { background:var(--card); border-radius:var(--rad); padding:20px; margin-bottom:14px; border:1px solid rgba(68,255,136,0.1); box-shadow:0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(68,255,136,0.06); }
+.step-badge { font-size:0.65rem; text-transform:uppercase; letter-spacing:2px; color:var(--gold); margin-bottom:6px; font-weight:700; }
+.q-text { font-size:1.05rem; font-weight:700; line-height:1.45; margin-bottom:14px; }
+.opts { display:flex; flex-direction:column; gap:7px; }
+.opt-btn {
+  background:rgba(255,255,255,0.04); border:1.5px solid rgba(255,255,255,0.1);
+  border-radius:13px; padding:11px 15px; color:var(--text);
+  font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-size:0.92rem; font-weight:700;
+  cursor:pointer; text-align:left;
+  transition:background 0.15s,border-color 0.15s,transform 0.12s,box-shadow 0.15s;
+}
+.opt-btn:hover { background:rgba(68,255,136,0.12); border-color:var(--accent); transform:translateX(4px); box-shadow:0 2px 12px rgba(68,255,136,0.2); }
+.opt-btn.correct { background:rgba(68,255,170,0.15); border-color:var(--good); color:var(--good); }
+.opt-btn.wrong { background:rgba(255,68,102,0.15); border-color:var(--danger); color:var(--danger); }
+.opt-btn:disabled { cursor:not-allowed; }
+.feedback { border-radius:12px; padding:10px 14px; font-size:0.84rem; font-weight:700; margin-top:10px; display:none; line-height:1.4; }
+.feedback.show { display:block; }
+.feedback.bad { background:rgba(255,68,102,0.12); border:1px solid rgba(255,68,102,0.4); color:#ff9aaa; }
+.feedback.good { background:rgba(68,255,170,0.12); border:1px solid rgba(68,255,170,0.4); color:var(--good); }
+.trait-picker { background:var(--card); border-radius:var(--rad); padding:20px; margin-bottom:14px; border:1px solid rgba(68,255,136,0.25); box-shadow:0 4px 24px rgba(0,0,0,0.3); display:none; }
+.trait-picker.show { display:block; }
+.tp-sub { font-size:0.65rem; text-transform:uppercase; letter-spacing:2px; color:var(--accent); margin-bottom:7px; font-weight:700; }
+.tp-label { font-size:1.02rem; font-weight:800; color:var(--gold); margin-bottom:12px; }
+.tp-opts { display:flex; flex-wrap:wrap; gap:7px; }
+.tp-opt { background:rgba(255,255,255,0.05); border:1.5px solid rgba(255,255,255,0.12); border-radius:999px; padding:7px 16px; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-size:0.84rem; font-weight:700; color:var(--text); cursor:pointer; transition:background 0.15s,border-color 0.15s,transform 0.12s; }
+.tp-opt:hover { background:rgba(255,220,68,0.15); border-color:var(--gold); transform:scale(1.05); }
+.tp-opt.selected { background:rgba(255,220,68,0.2); border-color:var(--gold); color:var(--gold); }
+.confirm-btn { margin-top:13px; background:linear-gradient(135deg,var(--accent),#22cc66); border:none; border-radius:13px; padding:12px 26px; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-size:0.94rem; font-weight:800; color:#0a1f0a; cursor:pointer; transition:transform 0.15s,box-shadow 0.15s; box-shadow:0 4px 20px rgba(68,255,136,0.35); }
+.confirm-btn:hover { transform:translateY(-2px); box-shadow:0 6px 28px rgba(68,255,136,0.55); }
+.confirm-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none; }
+.big-btn { display:block; width:100%; background:linear-gradient(135deg,var(--accent),#22cc66); border:none; border-radius:var(--rad); padding:16px; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-size:1.1rem; font-weight:800; color:#0a1f0a; cursor:pointer; letter-spacing:1px; transition:transform 0.15s,box-shadow 0.15s; box-shadow:0 4px 24px rgba(68,255,136,0.4); margin-top:10px; }
+.big-btn:hover { transform:translateY(-2px); box-shadow:0 7px 32px rgba(68,255,136,0.6); }
+#screen-start { text-align:center; padding-top:50px; }
+.start-art { font-size:5.5rem; margin-bottom:14px; display:block; animation:float 3s ease-in-out infinite; }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+.start-desc { color:var(--muted); font-size:0.92rem; line-height:1.65; max-width:440px; margin:0 auto 26px; }
+.start-desc strong { color:var(--text); }
+#screen-gameover { text-align:center; }
+.go-box { background:rgba(255,68,102,0.08); border:1px solid rgba(255,68,102,0.25); border-radius:var(--rad); padding:24px; margin-bottom:18px; }
+.go-emoji { font-size:3.5rem; margin-bottom:10px; }
+.go-title { font-size:2rem; font-weight:800; color:var(--danger); margin-bottom:8px; letter-spacing:2px; }
+.go-pct { font-size:3.5rem; font-weight:800; color:var(--gold); margin:6px 0; filter:drop-shadow(0 0 12px rgba(255,224,102,0.4)); }
+.go-msg { font-size:0.92rem; color:var(--muted); line-height:1.6; }
+.go-msg strong { color:var(--text); }
+#screen-win { text-align:center; }
+.win-box { background:rgba(68,255,136,0.06); border:1px solid rgba(68,255,136,0.2); border-radius:var(--rad); padding:24px; margin-bottom:18px; }
+.win-emoji { font-size:3.5rem; margin-bottom:10px; display:block; animation:spin 0.8s ease-out; }
+@keyframes spin { 0%{transform:rotate(-20deg) scale(0.5)} 70%{transform:rotate(10deg) scale(1.1)} 100%{transform:rotate(0) scale(1)} }
+.win-title { font-size:1.9rem; font-weight:800; background:linear-gradient(135deg,var(--gold),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:6px; }
+.win-name { font-size:1.5rem; font-weight:800; color:var(--accent); margin:8px 0; filter:drop-shadow(0 0 10px rgba(68,255,136,0.4)); }
+@keyframes pulse-in { 0%{transform:scale(0.93);opacity:0} 100%{transform:scale(1);opacity:1} }
+.pulse-in { animation:pulse-in 0.25s ease forwards; }
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#0f2d12; border-radius:3px; }
+</style>
+</head>
+<body>
+<div class="game-wrap">
+
+<div id="screen-start" class="screen active">
+  <span class="start-art">🧮</span>
+  <div class="logo">Mbob%</div>
+  <div class="tagline">Fractions &amp; Percentages Edition</div>
+  <p class="start-desc">
+    Answer <strong>20 questions about fractions and percentages</strong> to build your very own <strong>Mbob%</strong>!
+    Each correct answer unlocks a new feature. Three wrong answers and your Mbob walks off in a huff. Good luck! 🍀
+  </p>
+  <button class="big-btn" id="btn-start">✨ Start Building!</button>
+</div>
+
+<div id="screen-game" class="screen">
+  <div class="logo" style="font-size:2rem;margin-bottom:2px;">Mbob%</div>
+  <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="prog-label" id="prog-label">Question 1 of 20</div>
+  <div class="lives-row">
+    <span class="heart" id="h1">❤️</span>
+    <span class="heart" id="h2">❤️</span>
+    <span class="heart" id="h3">❤️</span>
+    <span class="lives-label">lives remaining</span>
+  </div>
+  <div class="mbob-stage">
+    <div class="mbob-stage-title">Your Mbob% So Far</div>
+    <canvas id="mbob-canvas" width="400" height="380"></canvas>
+    <div class="traits-row" id="traits-row"></div>
+  </div>
+  <div class="q-card">
+    <div class="step-badge" id="step-badge">QUESTION 1</div>
+    <div class="q-text" id="q-text">Loading...</div>
+    <div class="opts" id="opts"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+  <div class="trait-picker" id="trait-picker">
+    <div class="tp-sub">🎉 Correct! Now choose your Mbob%'s…</div>
+    <div class="tp-label" id="tp-label">Colour</div>
+    <div class="tp-opts" id="tp-opts"></div>
+    <button class="confirm-btn" id="confirm-btn" disabled>Confirm Choice →</button>
+  </div>
+</div>
+
+<div id="screen-gameover" class="screen">
+  <div class="go-box">
+    <div class="go-emoji">😤</div>
+    <div class="go-title">GAME OVER!</div>
+    <div class="go-pct" id="go-pct">0%</div>
+    <p class="go-msg">Your Mbob% is only <strong id="go-pct2">0%</strong> complete.<br>
+    Your Mbob% is <strong>NOT</strong> impressed. You have to start again!</p>
+  </div>
+  <canvas id="go-canvas" width="300" height="280" style="display:block;margin:0 auto 18px;"></canvas>
+  <button class="big-btn" id="btn-retry">🔄 Try Again!</button>
+</div>
+
+<div id="screen-win" class="screen">
+  <div class="win-box">
+    <span class="win-emoji">🏆</span>
+    <div class="win-title">YOUR MBOB% IS COMPLETE!</div>
+    <div class="win-name" id="win-name">Professor Snorkelsnoot</div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-top:6px;">What a magnificent Mbob%! 🎉</p>
+  </div>
+  <canvas id="win-canvas" width="440" height="420" style="display:block;margin:0 auto 16px;"></canvas>
+  <div id="win-traits" style="margin-bottom:16px;"></div>
+  <button class="big-btn" id="btn-another">🔄 Build Another Mbob%!</button>
+</div>
+
+</div>
+<script>
+
+const QUESTIONS = [
+  // ── BASIC FRACTIONS ───────────────────────────────────────────
+  { q: "What is 1/2 + 1/4?", opts: ["1/6","2/6","3/4","1/3","2/4"], answer: "3/4" },
+  { q: "What is 3/4 − 1/4?", opts: ["1/4","1/2","3/8","2/4","1/8"], answer: "1/2" },
+  { q: "What is 2/3 + 1/3?", opts: ["1/3","2/3","3/6","4/3","1"], answer: "1" },
+  { q: "What is 1/2 + 1/3?", opts: ["2/5","2/6","5/6","3/5","4/6"], answer: "5/6" },
+  { q: "What is 3/8 + 1/8?", opts: ["1/4","1/2","4/8","5/8","6/8"], answer: "4/8" },
+  { q: "What is 5/6 − 1/6?", opts: ["2/6","3/6","4/6","5/6","6/6"], answer: "4/6" },
+  { q: "What is 1/4 + 1/2?", opts: ["1/6","2/6","3/4","2/4","1/3"], answer: "3/4" },
+  { q: "What is 1/2 of 1/2?", opts: ["1/8","1/4","1/3","1/6","3/4"], answer: "1/4" },
+  { q: "What is 1/2 × 2/3 × 3/4?", opts: ["1/6","1/4","1/3","1/2","6/24"], answer: "1/4" },
+  { q: "What is 3/4 + 1/8?", opts: ["4/8","7/8","5/8","6/8","1"], answer: "7/8" },
+  { q: "What is 5/6 − 1/3?", opts: ["4/3","1/2","4/6","3/6","2/3"], answer: "1/2" },
+  { q: "What is 2/5 + 1/5?", opts: ["1/5","2/5","3/5","4/5","3/10"], answer: "3/5" },
+  { q: "What is 7/8 − 3/8?", opts: ["1/4","1/2","4/8","5/8","3/4"], answer: "1/2" },
+  { q: "What is 1/3 + 1/6?", opts: ["1/6","2/9","1/2","2/6","1/4"], answer: "1/2" },
+  { q: "What is 2/3 − 1/6?", opts: ["1/6","1/3","1/2","2/6","3/6"], answer: "1/2" },
+
+  // ── FRACTIONS OF AMOUNTS ──────────────────────────────────────
+  { q: "What is 2/5 of 20?", opts: ["4","6","8","10","12"], answer: "8" },
+  { q: "What is 1/3 of 18?", opts: ["3","4","5","6","9"], answer: "6" },
+  { q: "What is 3/4 of 40?", opts: ["20","25","28","30","35"], answer: "30" },
+  { q: "What is 3/5 of 25?", opts: ["9","12","15","18","20"], answer: "15" },
+  { q: "What is 2/3 of 27?", opts: ["9","12","15","18","21"], answer: "18" },
+  { q: "What is 1/4 of 60?", opts: ["10","12","15","18","20"], answer: "15" },
+  { q: "What is 3/8 of 40?", opts: ["10","12","15","18","20"], answer: "15" },
+  { q: "What is 5/6 of 30?", opts: ["20","22","24","25","26"], answer: "25" },
+  { q: "What is 7/10 of 50?", opts: ["30","32","35","38","40"], answer: "35" },
+  { q: "What is 4/5 of 45?", opts: ["30","32","34","36","38"], answer: "36" },
+  { q: "What is 2/7 of 35?", opts: ["5","7","8","9","10"], answer: "10" },
+  { q: "What is 5/8 of 64?", opts: ["32","36","40","44","48"], answer: "40" },
+  { q: "What is 3/4 of 100?", opts: ["60","65","70","75","80"], answer: "75" },
+  { q: "What is 1/6 of 48?", opts: ["6","7","8","9","10"], answer: "8" },
+  { q: "What is 2/9 of 45?", opts: ["5","8","10","12","15"], answer: "10" },
+
+  // ── EQUIVALENT FRACTIONS ──────────────────────────────────────
+  { q: "Which is equivalent to 3/4?", opts: ["6/9","9/12","4/6","12/15","6/10"], answer: "9/12" },
+  { q: "Which is equivalent to 2/3?", opts: ["4/9","6/9","8/12","4/6","6/8"], answer: "4/6" },
+  { q: "Which is equivalent to 1/2?", opts: ["2/6","3/8","4/8","5/9","3/7"], answer: "4/8" },
+  { q: "Which is equivalent to 2/5?", opts: ["4/15","6/15","3/10","4/10","6/20"], answer: "4/10" },
+  { q: "Simplify 6/9 to its lowest terms.", opts: ["1/3","2/3","3/4","4/6","2/4"], answer: "2/3" },
+  { q: "Simplify 8/12 to its lowest terms.", opts: ["1/2","2/3","3/4","4/6","2/4"], answer: "2/3" },
+  { q: "Simplify 10/15 to its lowest terms.", opts: ["1/3","2/3","3/5","2/5","4/6"], answer: "2/3" },
+  { q: "Simplify 12/16 to its lowest terms.", opts: ["1/2","2/3","3/4","4/5","5/8"], answer: "3/4" },
+  { q: "Which fraction is largest: 2/3, 3/5, 5/8, 7/12, 3/4?", opts: ["2/3","3/5","5/8","7/12","3/4"], answer: "3/4" },
+  { q: "Which fraction is smallest: 1/2, 2/5, 3/8, 5/12, 1/3?", opts: ["1/2","2/5","3/8","5/12","1/3"], answer: "1/3" },
+  { q: "Put in order (smallest first): 1/2, 1/3, 1/4. Which comes first?", opts: ["1/2","1/3","1/4","All equal","Cannot tell"], answer: "1/4" },
+  { q: "Is 3/5 greater than or less than 1/2?", opts: ["Less than","Equal to","Greater than","Cannot tell","Depends"], answer: "Greater than" },
+  { q: "What is the missing numerator? ?/6 = 2/3", opts: ["2","3","4","5","6"], answer: "4" },
+  { q: "What is the missing denominator? 3/? = 1/4", opts: ["8","10","12","14","16"], answer: "12" },
+  { q: "Which pair of fractions is equal? ", opts: ["1/2 and 2/5","3/4 and 6/8","2/3 and 3/4","1/3 and 2/5","3/5 and 4/6"], answer: "3/4 and 6/8" },
+
+  // ── FRACTIONS ↔ DECIMALS ──────────────────────────────────────
+  { q: "What is 1/2 as a decimal?", opts: ["0.12","0.2","0.5","1.2","2.0"], answer: "0.5" },
+  { q: "What is 1/4 as a decimal?", opts: ["0.14","0.25","0.4","0.75","2.5"], answer: "0.25" },
+  { q: "What is 3/4 as a decimal?", opts: ["0.25","0.50","0.70","0.75","0.80"], answer: "0.75" },
+  { q: "What is 1/5 as a decimal?", opts: ["0.1","0.15","0.2","0.5","1.5"], answer: "0.2" },
+  { q: "What is 7/10 as a decimal?", opts: ["0.07","0.17","0.7","7.0","0.71"], answer: "0.7" },
+  { q: "What is 0.25 as a fraction?", opts: ["1/5","1/4","1/3","2/5","3/10"], answer: "1/4" },
+  { q: "What is 0.6 as a fraction?", opts: ["3/6","3/5","6/5","2/3","6/10"], answer: "3/5" },
+  { q: "What is 0.125 as a fraction?", opts: ["1/10","1/8","1/5","1/4","1/6"], answer: "1/8" },
+  { q: "What is 1/8 as a decimal?", opts: ["0.08","0.125","0.18","0.8","1.8"], answer: "0.125" },
+  { q: "What is 2/5 as a decimal?", opts: ["0.2","0.25","0.4","0.52","0.6"], answer: "0.4" },
+  { q: "Which decimal is equivalent to 3/5?", opts: ["0.3","0.35","0.5","0.6","0.65"], answer: "0.6" },
+  { q: "What is 0.75 as a fraction in lowest terms?", opts: ["6/8","7/10","3/5","3/4","7/5"], answer: "3/4" },
+  { q: "What is 0.1 + 0.02 as a fraction?", opts: ["3/20","6/50","12/100","3/25","2/10"], answer: "3/25" },
+  { q: "What is 1/3 as a decimal? (to 2 decimal places)", opts: ["0.13","0.30","0.33","0.37","3.33"], answer: "0.33" },
+  { q: "Which is larger: 0.8 or 7/9?", opts: ["0.8","7/9","They are equal","Cannot tell","Depends"], answer: "7/9" },
+
+  // ── PERCENTAGES ───────────────────────────────────────────────
+  { q: "What is 10% of 80?", opts: ["4","6","7","8","10"], answer: "8" },
+  { q: "What is 15% of 60?", opts: ["6","7","8","9","10"], answer: "9" },
+  { q: "What is 25% of 120?", opts: ["25","28","30","32","35"], answer: "30" },
+  { q: "What is 50% of 90?", opts: ["35","40","45","50","55"], answer: "45" },
+  { q: "What is 40% of 50?", opts: ["10","15","20","25","30"], answer: "20" },
+  { q: "What is 30% of 90?", opts: ["18","21","24","27","30"], answer: "27" },
+  { q: "What is 15% of 200?", opts: ["20","25","30","35","40"], answer: "30" },
+  { q: "What percentage is 15 of 60?", opts: ["15%","20%","25%","30%","35%"], answer: "25%" },
+  { q: "What percentage is 12 out of 48?", opts: ["20%","25%","30%","35%","40%"], answer: "25%" },
+  { q: "If 40% of a number is 20, what is the number?", opts: ["40","45","50","55","60"], answer: "50" },
+  { q: "A number increased by 20% gives 60. What is the original number?", opts: ["40","45","48","50","55"], answer: "50" },
+  { q: "A shop reduces an $80 item by 15%. What is the sale price?", opts: ["$60","$64","$65","$68","$72"], answer: "$68" },
+  { q: "If a price rises from $20 to $25, what is the percentage increase?", opts: ["10%","15%","20%","25%","30%"], answer: "25%" },
+  { q: "What is 5% of 300?", opts: ["10","12","15","18","20"], answer: "15" },
+  { q: "What is 1% of 450?", opts: ["0.45","4.5","45","4.50","9"], answer: "4.5" },
+  { q: "What is 75% of 80?", opts: ["50","55","60","65","70"], answer: "60" },
+  { q: "What is 20% of 65?", opts: ["10","11","12","13","14"], answer: "13" },
+  { q: "A $50 item is reduced by 10%. What is the new price?", opts: ["$40","$41","$44","$45","$49"], answer: "$45" },
+  { q: "35 out of 50 students passed. What percentage passed?", opts: ["60%","65%","70%","75%","80%"], answer: "70%" },
+  { q: "What is 100% of 357?", opts: ["35.7","357","3570","3.57","0.357"], answer: "357" },
+
+  // ── FRACTIONS ↔ PERCENTAGES ───────────────────────────────────
+  { q: "What is 1/2 as a percentage?", opts: ["20%","25%","50%","5%","0.5%"], answer: "50%" },
+  { q: "What is 1/4 as a percentage?", opts: ["14%","20%","25%","40%","75%"], answer: "25%" },
+  { q: "What is 3/4 as a percentage?", opts: ["34%","57%","60%","70%","75%"], answer: "75%" },
+  { q: "What is 1/5 as a percentage?", opts: ["15%","20%","25%","50%","51%"], answer: "20%" },
+  { q: "What is 2/5 as a percentage?", opts: ["20%","25%","35%","40%","45%"], answer: "40%" },
+  { q: "What is 3/10 as a percentage?", opts: ["3%","13%","30%","33%","37%"], answer: "30%" },
+  { q: "What is 60% as a fraction in lowest terms?", opts: ["6/10","3/4","3/5","2/3","6/9"], answer: "3/5" },
+  { q: "What is 25% as a fraction in lowest terms?", opts: ["25/100","5/20","2/8","1/4","1/3"], answer: "1/4" },
+  { q: "What is 80% as a fraction in lowest terms?", opts: ["8/10","4/6","4/5","16/20","3/4"], answer: "4/5" },
+  { q: "What percentage is equivalent to 7/20?", opts: ["7%","14%","28%","35%","70%"], answer: "35%" },
+  { q: "What fraction is equivalent to 35%?", opts: ["3/5","7/20","35/10","7/2","1/3"], answer: "7/20" },
+  { q: "Order from smallest: 1/3, 30%, 0.35. Which is smallest?", opts: ["1/3","30%","0.35","All equal","Cannot tell"], answer: "30%" },
+  { q: "Which is largest: 2/3, 65%, 0.7?", opts: ["2/3","65%","0.7","All equal","Cannot tell"], answer: "0.7" },
+  { q: "What is 12.5% as a fraction?", opts: ["1/10","1/8","1/6","1/5","1/4"], answer: "1/8" },
+  { q: "What is 33⅓% as a fraction?", opts: ["1/4","1/3","2/5","3/8","2/6"], answer: "1/3" },
+
+  // ── WORD PROBLEMS WITH FRACTIONS & PERCENTAGES ───────────────
+  { q: "Mathilda watched 120 minutes of a 3-hour movie. What fraction did she watch?", opts: ["1/4","1/3","1/2","2/3","3/4"], answer: "2/3" },
+  { q: "You spend 1/4 of $20. How much is left?", opts: ["$5","$10","$12","$15","$18"], answer: "$15" },
+  { q: "A class has 32 students. 3/4 passed. How many passed?", opts: ["18","20","22","24","26"], answer: "24" },
+  { q: "A pie is cut into 6 equal slices. 2 are eaten. What fraction remains?", opts: ["1/6","2/6","3/6","4/6","5/6"], answer: "4/6" },
+  { q: "A fish tank holds 60 L. It is 3/4 full. How many litres inside?", opts: ["40 L","42 L","44 L","45 L","48 L"], answer: "45 L" },
+  { q: "What fraction remains if 1/4 of a pie was eaten?", opts: ["1/4","1/3","1/2","2/3","3/4"], answer: "3/4" },
+  { q: "If 1/3 of a number is 12, what is the number?", opts: ["24","30","36","40","48"], answer: "36" },
+  { q: "A recipe needs 2/3 cup of sugar. For a double batch, how much sugar?", opts: ["1 cup","1 1/3 cups","1 1/2 cups","2 cups","4/3 cups"], answer: "1 1/3 cups" },
+  { q: "Tom ate 3/8 of a pizza, Sue ate 1/4. What fraction is left?", opts: ["1/8","2/8","3/8","4/8","5/8"], answer: "3/8" },
+  { q: "A 24-piece chocolate bar: 1/3 is eaten Monday, 1/4 Tuesday. How many pieces are left?", opts: ["6","7","8","9","10"], answer: "10" },
+  { q: "A 500 mL bottle is 2/5 full. How many mL are inside?", opts: ["100","150","200","250","300"], answer: "200" },
+  { q: "Sarah runs 3/4 of a 12 km route. How far does she run?", opts: ["6 km","7 km","8 km","9 km","10 km"], answer: "9 km" },
+  { q: "A shop has 40 shirts. 30% are blue. How many blue shirts?", opts: ["8","10","12","14","16"], answer: "12" },
+  { q: "A class of 25 students: 40% are boys. How many girls?", opts: ["10","12","13","14","15"], answer: "15" },
+  { q: "A bike costs $200. It is on sale for 15% off. What is the discount amount?", opts: ["$20","$25","$30","$35","$40"], answer: "$30" },
+  { q: "A population of 8 000 grows by 5%. What is the new population?", opts: ["8 040","8 100","8 200","8 400","8 500"], answer: "8 400" },
+  { q: "A bill is $60. You tip 20%. What is the total you pay?", opts: ["$62","$66","$68","$72","$75"], answer: "$72" },
+  { q: "If 2/5 of a number is 14, what is the number?", opts: ["28","30","32","35","40"], answer: "35" },
+  { q: "A jug holds 2 litres. It is 3/8 full. How many mL does it contain?", opts: ["600 mL","650 mL","700 mL","750 mL","800 mL"], answer: "750 mL" },
+  { q: "Maria earns $300 a week. She saves 1/5. How much does she save?", opts: ["$50","$60","$70","$80","$90"], answer: "$60" },
+];
+
+// ── TRAIT DEFINITIONS (in unlock order) ───────────────────────
+const TRAITS = [
+  {
+    key: "color", label: "Colour",
+    opts: ["Snow White","Cream","Bubblegum Pink","Coral Red","Tangerine Orange","Sunflower Yellow",
+           "Mint Green","Sky Blue","Lavender","Lilac Purple","Silver","Chocolate Brown","Midnight Black","Peach"]
+  },
+  {
+    key: "pattern", label: "Pattern",
+    opts: ["None (plain fluffy)","Spots","Stripes"]
+  },
+  {
+    key: "eyeSize", label: "Eye Size",
+    opts: ["Tiny (beady)","Small","Medium","Large","Extra Large (googly!)"]
+  },
+  {
+    key: "eyeColor", label: "Eye Colour",
+    opts: ["Jet Black","Deep Brown","Ocean Blue","Emerald Green","Amber Gold","Violet Purple","Ruby Red","Silver Grey","Turquoise","Hot Pink"]
+  },
+  {
+    key: "ears", label: "Ears",
+    opts: ["Floppy Bunny Ears","Pointy Cat Ears","Round Teddy Ears","Huge Elephant Ears","Tiny Pixie Ears","Curly Ram Horns","No Ears (smooth)","Fluffy Bear Ears"]
+  },
+  {
+    key: "mouthSize", label: "Mouth Size",
+    opts: ["Tiny Dot Mouth","Small Smile","Medium Grin","Big Goofy Grin","Massive Toothy Smile"]
+  },
+  {
+    key: "teeth", label: "Teeth",
+    opts: ["No Teeth (smooth)","Tiny Cute Teeth","Big Buck Teeth","Vampire Fangs","One Gold Tooth","Snaggletooth","Perfect Pearly Whites"]
+  },
+  {
+    key: "arms", label: "Arms",
+    opts: ["Stubby Little Arms","Long Noodle Arms","Chubby Round Arms","Tiny T-Rex Arms","Tentacle Arms","Big Fluffy Paws","No Arms (just floats!)"]
+  },
+  {
+    key: "shoes", label: "Shoes",
+    opts: ["Rainbow Trainers","Tiny Cowboy Boots","Ballet Slippers","Giant Clown Shoes","Sparkly High Tops","No Shoes (bare paws)","Rocket Boots","Polka Dot Wellies"]
+  },
+  {
+    key: "hairStyle", label: "Hair Style",
+    opts: ["Wild Spiky","Long Flowing","Big Afro","Mohawk","Tiny Topknot","Cute Bob","Bald & Proud","Curly Ringlets","Messy Bedhead"]
+  },
+  {
+    key: "hairColor", label: "Hair Colour",
+    opts: ["Golden Blonde","Fiery Red","Jet Black","Chocolate Brown","Platinum Silver","Hot Pink","Electric Blue","Pastel Purple","Rainbow Multicolour","Ginger Orange"]
+  },
+  {
+    key: "acc1", label: "Accessory #1",
+    opts: ["Giant Bow 🎀","Monocle 🧐","Star Badge ⭐","Wand ✨","Bow Tie 🎀","Cape 🦸","Glasses 🤓","Heart Necklace 💕"]
+  },
+  {
+    key: "acc2", label: "Accessory #2",
+    opts: ["Tiny Backpack 🎒","Flower Crown 🌸","Scarf","Striped Socks","Wristwatch ⌚","Friendship Bracelet","Ear Rings","Fluffy Tail Bow"]
+  },
+  {
+    key: "cheeks", label: "Cheeks",
+    opts: ["Rosy Blush","Freckles","Glitter Sparkles","Heart-shaped Blush","No Markings","Chubby Puff Cheeks","Striped Blush","Star Freckles"]
+  },
+  {
+    key: "eyebrows", label: "Eyebrows",
+    opts: ["Big Bushy Brows","Perfectly Arched","Angry Furrowed","Raised in Surprise","Wiggly Worm Brows","Invisible (none)","Fluffy Caterpillar Brows"]
+  },
+  {
+    key: "tail", label: "Tail",
+    opts: ["Fluffy Fox Tail","Cute Bunny Puff","Dragon Tail","Curly Pig Tail","Lightning Bolt Tail","No Tail","Striped Raccoon Tail","Big Peacock Fan"]
+  },
+  {
+    key: "hat", label: "Hat",
+    opts: ["Top Hat 🎩","Wizard Hat 🧙","Crown 👑","Party Hat 🎉","Backwards Baseball Cap","Beret","Pirate Hat ☠️","No Hat"]
+  },
+  {
+    key: "nose", label: "Nose",
+    opts: ["Tiny Button Nose","Big Round Nose","Pig Snout","Bunny Nose","Star-shaped Nose","No Nose (mysterious)","Heart Nose","Bobbly Clown Nose"]
+  },
+  {
+    key: "title", label: "Title",
+    opts: ["Captain","Doctor","Professor","Lady","Sir","The Great","Magnificent","Master","Baroness","Agent"]
+  },
+  {
+    key: "name", label: "Surname",
+    opts: ["Swizzlestick","Wobblehat","Blorpington","Noodlefuzz","Zigglemax","Derpsworth","Flimflam","Snorkelsnoot","Bumblethwick","Quackledorf","Puffington","Gigglesnort","Wobblebottom","Snugglekins"]
+  },
+];
+
+// ── COLOUR MAPS ───────────────────────────────────────────────
+const BODY_COLOURS = {
+  "Snow White": "#f8f8f8", "Cream": "#fff5e0", "Bubblegum Pink": "#ffb3d9",
+  "Coral Red": "#ff6b6b", "Tangerine Orange": "#ffaa44", "Sunflower Yellow": "#ffe033",
+  "Mint Green": "#88ffcc", "Sky Blue": "#88ccff", "Lavender": "#ccaaff",
+  "Lilac Purple": "#bb88ee", "Silver": "#d0d0e0", "Chocolate Brown": "#aa7744",
+  "Midnight Black": "#222233", "Peach": "#ffccaa",
+};
+const EYE_COLOURS = {
+  "Jet Black": "#111", "Deep Brown": "#553311", "Ocean Blue": "#2266ff",
+  "Emerald Green": "#228833", "Amber Gold": "#ffaa00", "Violet Purple": "#9900ff",
+  "Ruby Red": "#cc2200", "Silver Grey": "#888", "Turquoise": "#00ccbb", "Hot Pink": "#ff44bb",
+};
+const HAIR_COLOURS = {
+  "Golden Blonde": "#ffdd55", "Fiery Red": "#ff3322", "Jet Black": "#111",
+  "Chocolate Brown": "#7a4422", "Platinum Silver": "#d0d0d0", "Hot Pink": "#ff44bb",
+  "Electric Blue": "#2244ff", "Pastel Purple": "#cc88ff", "Rainbow Multicolour": "#ff4499",
+  "Ginger Orange": "#ff8833",
+};
+
+// ── GAME STATE ────────────────────────────────────────────────
+let state = {
+  lives: 3, qIdx: 0, wrongStreak: 0,
+  pool: [], mbob: {}, selectedTrait: null, awaitingTrait: false,
+};
+
+function shuffle(arr) {
+  // Triple-pass Fisher-Yates for strong randomisation
+  let a = [...arr];
+  for (let pass = 0; pass < 3; pass++) {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+  }
+  return a;
+}
+
+function startGame() {
+  // Use crypto.getRandomValues to seed a truly random starting index
+  // before shuffling, guaranteeing different results every game
+  const seedArr = new Uint32Array(1);
+  crypto.getRandomValues(seedArr);
+  const startOffset = seedArr[0] % QUESTIONS.length;
+  // Rotate array by random offset then shuffle — breaks any caching
+  const rotated = [...QUESTIONS.slice(startOffset), ...QUESTIONS.slice(0, startOffset)];
+  const pool = shuffle(rotated).slice(0, 20);
+
+  state = {
+    lives: 3, qIdx: 0, wrongStreak: 0,
+    pool,
+    mbob: {}, selectedTrait: null, awaitingTrait: false,
+  };
+  showScreen('game');
+  renderQuestion();
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+// ── RENDER QUESTION ───────────────────────────────────────────
+function renderQuestion() {
+  const q = state.pool[state.qIdx];
+  const trait = TRAITS[state.qIdx];
+  const pct = (state.qIdx / 20) * 100;
+
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `Question ${state.qIdx + 1} of 20`;
+  document.getElementById('step-badge').textContent = `Q${state.qIdx + 1} — Unlock: ${trait.label.toUpperCase()}`;
+  document.getElementById('q-text').textContent = q.q;
+
+  // Lives
+  for (let i = 1; i <= 3; i++) document.getElementById('h' + i).classList.toggle('lost', i > state.lives);
+
+  // Options
+  const cont = document.getElementById('opts');
+  cont.innerHTML = '';
+  shuffle(q.opts).forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn pulse-in';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => handleAnswer(opt, q.answer, btn));
+    cont.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback'; fb.textContent = '';
+  document.getElementById('trait-picker').classList.remove('show');
+  state.selectedTrait = null; state.awaitingTrait = false;
+
+  drawMbob('mbob-canvas', 340, 320);
+  renderChips();
+}
+
+// ── HANDLE ANSWER ─────────────────────────────────────────────
+function handleAnswer(chosen, correct, btn) {
+  if (state.awaitingTrait) return;
+  document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+
+  const ok = chosen.trim() === correct.trim();
+  const fb = document.getElementById('feedback');
+
+  if (ok) {
+    btn.classList.add('correct');
+    state.wrongStreak = 0;
+    fb.className = 'feedback good show';
+    fb.textContent = `✅ Correct! Now choose your Mbob's ${TRAITS[state.qIdx].label}!`;
+    setTimeout(showTraitPicker, 650);
+  } else {
+    btn.classList.add('wrong');
+    state.wrongStreak++;
+    state.lives--;
+    updateHearts();
+
+    if (state.lives <= 0) {
+      fb.className = 'feedback bad show';
+      fb.textContent = '❌ Wrong! Game over!';
+      setTimeout(gameOver, 1200);
+      return;
+    }
+
+    fb.className = 'feedback bad show';
+    if (state.wrongStreak === 1) {
+      fb.textContent = "No, I'm afraid that's wrong. You have two more chances to get this right.";
+    } else {
+      fb.textContent = "Nope. Sorry! Careful, you only have one more chance.";
+    }
+
+    setTimeout(() => {
+      document.querySelectorAll('.opt-btn').forEach(b => { b.disabled = false; b.classList.remove('wrong','correct'); });
+    }, 900);
+  }
+}
+
+function updateHearts() {
+  for (let i = 1; i <= 3; i++) document.getElementById('h' + i).classList.toggle('lost', i > state.lives);
+}
+
+// ── TRAIT PICKER ──────────────────────────────────────────────
+function showTraitPicker() {
+  const trait = TRAITS[state.qIdx];
+  document.getElementById('tp-label').textContent = trait.label;
+  const cont = document.getElementById('tp-opts');
+  cont.innerHTML = '';
+  trait.opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'tp-opt';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tp-opt').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.selectedTrait = opt;
+      document.getElementById('confirm-btn').disabled = false;
+    });
+    cont.appendChild(btn);
+  });
+  document.getElementById('confirm-btn').disabled = true;
+  document.getElementById('trait-picker').classList.add('show');
+  state.awaitingTrait = true;
+}
+
+function confirmTrait() {
+  const trait = TRAITS[state.qIdx];
+  state.mbob[trait.key] = state.selectedTrait;
+  state.awaitingTrait = false;
+  state.wrongStreak = 0;
+  state.qIdx++;
+  if (state.qIdx >= 20) winGame();
+  else renderQuestion();
+}
+
+// ── TRAIT CHIPS ───────────────────────────────────────────────
+function renderChips() {
+  const row = document.getElementById('traits-row');
+  row.innerHTML = '';
+  TRAITS.forEach(td => {
+    const v = state.mbob[td.key];
+    const chip = document.createElement('span');
+    chip.className = 'trait-chip' + (v ? ' unlocked' : '');
+    chip.textContent = v ? `${td.label}: ${v}` : td.label;
+    row.appendChild(chip);
+  });
+}
+
+// ── DRAW MBOB ─────────────────────────────────────────────────
+function drawMbob(canvasId, W, H) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, W, H);
+  const m = state.mbob;
+
+  const cx = W / 2;
+  const cy = H / 2 + 10;
+  const bodyR = Math.min(W, H) * 0.32; // big fluffy body radius
+
+  const bodyCol = BODY_COLOURS[m.color] || '#f8f8f8';
+  const eyeCol = EYE_COLOURS[m.eyeColor] || '#222';
+  const hairCol = HAIR_COLOURS[m.hairColor] || '#ffdd55';
+
+  // ── TAIL (behind body) ──
+  drawTail(ctx, m.tail, cx, cy, bodyR, bodyCol);
+
+  // ── SHOES (at bottom, no legs) ──
+  drawShoes(ctx, m.shoes, cx, cy, bodyR);
+
+  // ── FLUFFY BODY ──
+  drawFluffyBody(ctx, cx, cy, bodyR, bodyCol, m.pattern);
+
+  // ── ARMS ──
+  drawArms(ctx, m.arms, cx, cy, bodyR, bodyCol);
+
+  // ── EARS ──
+  drawEars(ctx, m.ears, cx, cy, bodyR, bodyCol);
+
+  // ── HAIR ──
+  drawHair(ctx, m.hairStyle, hairCol, cx, cy, bodyR);
+
+  // ── FACE: EYEBROWS ──
+  drawEyebrows(ctx, m.eyebrows, cx, cy, bodyR);
+
+  // ── FACE: EYES ──
+  drawEyes(ctx, m.eyeSize, eyeCol, m.eyeShape, cx, cy, bodyR);
+
+  // ── FACE: CHEEKS ──
+  drawCheeks(ctx, m.cheeks, cx, cy, bodyR);
+
+  // ── FACE: NOSE ──
+  drawNose(ctx, m.nose, cx, cy, bodyR);
+
+  // ── FACE: MOUTH ──
+  drawMouth(ctx, m.mouthSize, m.teeth, cx, cy, bodyR);
+
+  // ── HAT ──
+  drawHat(ctx, m.hat, cx, cy, bodyR);
+
+  // ── ACCESSORIES ──
+  drawAccessory(ctx, m.acc1, cx, cy, bodyR);
+  drawAccessory2(ctx, m.acc2, cx, cy, bodyR);
+
+  // ── NAME LABEL ──
+  const title = m.title || '';
+  const name = m.name || '';
+  if (title || name) {
+    ctx.save();
+    ctx.font = `bold 11px Nunito, sans-serif`;
+    ctx.fillStyle = '#ffe066';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${title} ${name}`.trim(), cx, H - 6);
+    ctx.restore();
+  }
+}
+
+// ── FLUFFY BODY ────────────────────────────────────────────────
+function drawFluffyBody(ctx, cx, cy, r, col, pattern) {
+  // Multi-circle fluffy effect
+  const fluff = [
+    [cx - r*0.55, cy + r*0.35, r*0.45],
+    [cx + r*0.55, cy + r*0.35, r*0.45],
+    [cx - r*0.65, cy - r*0.05, r*0.40],
+    [cx + r*0.65, cy - r*0.05, r*0.40],
+    [cx - r*0.35, cy - r*0.65, r*0.38],
+    [cx + r*0.35, cy - r*0.65, r*0.38],
+    [cx, cy + r*0.58, r*0.40],
+    [cx, cy - r*0.68, r*0.38],
+  ];
+  // Draw fluff bumps
+  fluff.forEach(([fx, fy, fr]) => {
+    ctx.save();
+    ctx.fillStyle = col;
+    ctx.shadowColor = col; ctx.shadowBlur = 12;
+    ctx.beginPath(); ctx.arc(fx, fy, fr, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  });
+  // Main body circle
+  ctx.save();
+  ctx.fillStyle = col;
+  ctx.shadowColor = col; ctx.shadowBlur = 20;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+  // Subtle highlight
+  const grad = ctx.createRadialGradient(cx - r*0.25, cy - r*0.25, r*0.05, cx, cy, r);
+  grad.addColorStop(0, 'rgba(255,255,255,0.45)');
+  grad.addColorStop(0.5, 'rgba(255,255,255,0.10)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.08)');
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  // PATTERN
+  if (pattern && !pattern.includes('None')) {
+    ctx.save(); ctx.globalAlpha = 0.30;
+    ctx.fillStyle = 'rgba(80,40,0,0.6)';
+    if (pattern.includes('Spots')) {
+      const spots = [[-r*0.3, -r*0.2, r*0.1],[r*0.32, -r*0.28, r*0.09],[0, r*0.22, r*0.1],[-r*0.38, r*0.18, r*0.08],[r*0.28, r*0.28, r*0.09]];
+      spots.forEach(([sx, sy, sr]) => {
+        ctx.beginPath(); ctx.arc(cx+sx, cy+sy, sr, 0, Math.PI*2); ctx.fill();
+      });
+    } else if (pattern.includes('Stripes')) {
+      ctx.strokeStyle = 'rgba(80,40,0,0.4)'; ctx.lineWidth = r * 0.12;
+      for (let s = -r*0.5; s < r*0.6; s += r*0.28) {
+        ctx.beginPath(); ctx.moveTo(cx + s - r, cy - r); ctx.lineTo(cx + s + r, cy + r); ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+}
+
+// ── EARS ──────────────────────────────────────────────────────
+function drawEars(ctx, ears, cx, cy, r, col) {
+  if (!ears) return;
+  ctx.save(); ctx.fillStyle = col;
+  if (ears.includes('Bunny')) {
+    // tall bunny ears
+    ctx.beginPath(); ctx.ellipse(cx - r*0.38, cy - r*1.1, r*0.14, r*0.42, -0.15, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + r*0.38, cy - r*1.1, r*0.14, r*0.42, 0.15, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffaabb';
+    ctx.beginPath(); ctx.ellipse(cx - r*0.38, cy - r*1.1, r*0.06, r*0.26, -0.15, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + r*0.38, cy - r*1.1, r*0.06, r*0.26, 0.15, 0, Math.PI*2); ctx.fill();
+  } else if (ears.includes('Cat')) {
+    ctx.beginPath(); ctx.moveTo(cx - r*0.45, cy - r*0.65); ctx.lineTo(cx - r*0.7, cy - r*1.0); ctx.lineTo(cx - r*0.15, cy - r*0.75); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.45, cy - r*0.65); ctx.lineTo(cx + r*0.7, cy - r*1.0); ctx.lineTo(cx + r*0.15, cy - r*0.75); ctx.fill();
+    ctx.fillStyle = '#ffaabb';
+    ctx.beginPath(); ctx.moveTo(cx - r*0.42, cy - r*0.70); ctx.lineTo(cx - r*0.63, cy - r*0.95); ctx.lineTo(cx - r*0.20, cy - r*0.78); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.42, cy - r*0.70); ctx.lineTo(cx + r*0.63, cy - r*0.95); ctx.lineTo(cx + r*0.20, cy - r*0.78); ctx.fill();
+  } else if (ears.includes('Round') || ears.includes('Bear') || ears.includes('Teddy')) {
+    ctx.beginPath(); ctx.arc(cx - r*0.6, cy - r*0.7, r*0.22, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + r*0.6, cy - r*0.7, r*0.22, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffaaaa';
+    ctx.beginPath(); ctx.arc(cx - r*0.6, cy - r*0.7, r*0.10, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + r*0.6, cy - r*0.7, r*0.10, 0, Math.PI*2); ctx.fill();
+  } else if (ears.includes('Elephant')) {
+    ctx.beginPath(); ctx.ellipse(cx - r*0.85, cy - r*0.1, r*0.38, r*0.52, -0.3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + r*0.85, cy - r*0.1, r*0.38, r*0.52, 0.3, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ffcccc';
+    ctx.beginPath(); ctx.ellipse(cx - r*0.85, cy - r*0.1, r*0.22, r*0.32, -0.3, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + r*0.85, cy - r*0.1, r*0.22, r*0.32, 0.3, 0, Math.PI*2); ctx.fill();
+  } else if (ears.includes('Pixie')) {
+    ctx.beginPath(); ctx.moveTo(cx - r*0.55, cy - r*0.5); ctx.lineTo(cx - r*0.75, cy - r*0.85); ctx.lineTo(cx - r*0.32, cy - r*0.6); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.55, cy - r*0.5); ctx.lineTo(cx + r*0.75, cy - r*0.85); ctx.lineTo(cx + r*0.32, cy - r*0.6); ctx.fill();
+  } else if (ears.includes('Ram') || ears.includes('Curly')) {
+    ctx.strokeStyle = col; ctx.lineWidth = r*0.18; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(cx - r*0.7, cy - r*0.55, r*0.28, 0, Math.PI*1.5); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx + r*0.7, cy - r*0.55, r*0.28, Math.PI*1.5, Math.PI*3); ctx.stroke();
+  } else if (ears.includes('Fluffy') || ears.includes('Fluffy Bear')) {
+    // big fluffy circles
+    ctx.beginPath(); ctx.arc(cx - r*0.62, cy - r*0.68, r*0.26, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + r*0.62, cy - r*0.68, r*0.26, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ── HAIR ──────────────────────────────────────────────────────
+function drawHair(ctx, style, col, cx, cy, r) {
+  if (!style || style.includes('Bald')) return;
+  ctx.save();
+  ctx.fillStyle = col;
+  ctx.strokeStyle = col;
+
+  if (style.includes('Spiky')) {
+    // Realistic spiky hair: thick base layer + individual sharp spikes
+    ctx.lineWidth = r * 0.13;
+    ctx.lineCap = 'round';
+    // Base hair cap
+    ctx.beginPath();
+    ctx.arc(cx, cy - r * 0.6, r * 0.65, Math.PI + 0.35, Math.PI * 2 - 0.35);
+    ctx.fill();
+    // Individual spikes
+    const spikeData = [
+      [-0.48, -0.6, -0.55, -1.08, -0.12],
+      [-0.25, -0.72, -0.28, -1.15, 0.0],
+      [0.0,   -0.78, 0.0,  -1.22, 0.12],
+      [0.25,  -0.72, 0.28, -1.15, 0.0],
+      [0.48,  -0.6,  0.55, -1.08, -0.12],
+    ];
+    spikeData.forEach(([bx, by, tx, ty, lean]) => {
+      ctx.beginPath();
+      ctx.moveTo(cx + (bx - 0.1) * r, cy + by * r);
+      ctx.bezierCurveTo(
+        cx + (bx + lean) * r, cy + (by - 0.2) * r,
+        cx + (tx + lean) * r, cy + (ty + 0.15) * r,
+        cx + tx * r, cy + ty * r
+      );
+      ctx.lineTo(cx + (bx + 0.1) * r, cy + by * r);
+      ctx.closePath();
+      ctx.fill();
+    });
+
+  } else if (style.includes('Afro')) {
+    // Big natural afro - large fluffy sphere above head
+    const afroR = r * 0.72;
+    const afroCy = cy - r * 0.62;
+    // Main afro mass
+    ctx.beginPath();
+    ctx.arc(cx, afroCy, afroR, 0, Math.PI * 2);
+    ctx.fill();
+    // Texture: darker coil bumps around the surface
+    const darkCol = darken(col);
+    ctx.fillStyle = darkCol;
+    ctx.globalAlpha = 0.35;
+    for (let a = 0; a < Math.PI * 2; a += 0.45) {
+      const bx = cx + Math.cos(a) * afroR * 0.72;
+      const by = afroCy + Math.sin(a) * afroR * 0.72;
+      ctx.beginPath();
+      ctx.arc(bx, by, r * 0.1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Inner texture
+    ctx.globalAlpha = 0.2;
+    for (let a = 0.2; a < Math.PI * 2; a += 0.7) {
+      const bx = cx + Math.cos(a) * afroR * 0.38;
+      const by = afroCy + Math.sin(a) * afroR * 0.38;
+      ctx.beginPath();
+      ctx.arc(bx, by, r * 0.08, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+  } else if (style.includes('Mohawk')) {
+    // Realistic mohawk: shaved sides, central strip of upright hair
+    ctx.globalAlpha = 0.9;
+    // Central strip base
+    ctx.beginPath();
+    ctx.ellipse(cx, cy - r * 0.7, r * 0.18, r * 0.12, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Upright hair blades
+    const bladeCount = 7;
+    for (let i = 0; i < bladeCount; i++) {
+      const t = (i / (bladeCount - 1)) - 0.5;
+      const bx = cx + t * r * 0.28;
+      const baseY = cy - r * 0.68;
+      const height = r * (0.28 + 0.12 * Math.cos(t * Math.PI * 2));
+      const lean = t * 0.12 * r;
+      ctx.beginPath();
+      ctx.moveTo(bx - r * 0.055, baseY);
+      ctx.bezierCurveTo(bx - r * 0.03 + lean, baseY - height * 0.5,
+                        bx + lean,             baseY - height * 0.8,
+                        bx + lean,             baseY - height);
+      ctx.bezierCurveTo(bx + lean,             baseY - height * 0.8,
+                        bx + r * 0.03 + lean,  baseY - height * 0.5,
+                        bx + r * 0.055,        baseY);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+  } else if (style.includes('Topknot')) {
+    // Realistic topknot: smooth bun on top with a tie
+    // Hair pulled back - show as side sweeps
+    ctx.lineWidth = r * 0.08;
+    ctx.lineCap = 'round';
+    // Left sweep
+    ctx.beginPath();
+    ctx.moveTo(cx - r * 0.62, cy - r * 0.45);
+    ctx.bezierCurveTo(cx - r * 0.3, cy - r * 0.72, cx - r * 0.1, cy - r * 0.82, cx, cy - r * 0.88);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx - r * 0.55, cy - r * 0.35);
+    ctx.bezierCurveTo(cx - r * 0.25, cy - r * 0.65, cx - r * 0.08, cy - r * 0.78, cx, cy - r * 0.88);
+    ctx.stroke();
+    // Right sweep
+    ctx.beginPath();
+    ctx.moveTo(cx + r * 0.62, cy - r * 0.45);
+    ctx.bezierCurveTo(cx + r * 0.3, cy - r * 0.72, cx + r * 0.1, cy - r * 0.82, cx, cy - r * 0.88);
+    ctx.stroke();
+    // Bun
+    ctx.beginPath();
+    ctx.ellipse(cx, cy - r * 1.02, r * 0.22, r * 0.18, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Hair tie (dark band)
+    ctx.strokeStyle = darken(col);
+    ctx.lineWidth = r * 0.06;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy - r * 0.88, r * 0.12, r * 0.07, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+  } else if (style.includes('Curly') || style.includes('Ringlets')) {
+    // Realistic curly hair: overlapping curved ringlets
+    ctx.lineWidth = r * 0.1;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = col;
+    // Hair cap base
+    ctx.beginPath();
+    ctx.arc(cx, cy - r * 0.65, r * 0.62, Math.PI + 0.2, Math.PI * 2 - 0.2);
+    ctx.fill();
+    // Ringlets hanging down and around
+    const ringlets = [
+      [cx - r*0.52, cy - r*0.42, r*0.16, 0.0],
+      [cx - r*0.68, cy - r*0.18, r*0.14, 0.15],
+      [cx - r*0.35, cy - r*0.72, r*0.13, -0.1],
+      [cx + r*0.35, cy - r*0.72, r*0.13, 0.1],
+      [cx + r*0.52, cy - r*0.42, r*0.16, 0.0],
+      [cx + r*0.68, cy - r*0.18, r*0.14, -0.15],
+      [cx,          cy - r*0.82, r*0.12, 0.0],
+      [cx - r*0.18, cy - r*0.52, r*0.14, 0.05],
+      [cx + r*0.18, cy - r*0.52, r*0.14, -0.05],
+    ];
+    ringlets.forEach(([rx, ry, rr, ang]) => {
+      ctx.beginPath();
+      ctx.arc(rx, ry, rr, ang, ang + Math.PI * 1.85);
+      ctx.stroke();
+    });
+
+  } else if (style.includes('Flowing') || style.includes('Long')) {
+    // Realistic long flowing hair: smooth waves falling to sides
+    // Left side
+    const grad1 = ctx.createLinearGradient(cx - r*0.8, cy - r*0.8, cx - r*0.5, cy + r*0.9);
+    grad1.addColorStop(0, col);
+    grad1.addColorStop(1, darken(col));
+    ctx.fillStyle = grad1;
+    ctx.beginPath();
+    ctx.moveTo(cx - r*0.25, cy - r*0.78);
+    ctx.bezierCurveTo(cx - r*0.55, cy - r*0.65, cx - r*0.82, cy - r*0.1, cx - r*0.85, cy + r*0.5);
+    ctx.bezierCurveTo(cx - r*0.88, cy + r*0.75, cx - r*0.82, cy + r*0.85, cx - r*0.78, cy + r*0.8);
+    ctx.bezierCurveTo(cx - r*0.7,  cy + r*0.65, cx - r*0.62, cy + r*0.2,  cx - r*0.58, cy - r*0.05);
+    ctx.bezierCurveTo(cx - r*0.5,  cy - r*0.45, cx - r*0.32, cy - r*0.62, cx - r*0.22, cy - r*0.72);
+    ctx.closePath();
+    ctx.fill();
+    // Right side
+    const grad2 = ctx.createLinearGradient(cx + r*0.8, cy - r*0.8, cx + r*0.5, cy + r*0.9);
+    grad2.addColorStop(0, col);
+    grad2.addColorStop(1, darken(col));
+    ctx.fillStyle = grad2;
+    ctx.beginPath();
+    ctx.moveTo(cx + r*0.25, cy - r*0.78);
+    ctx.bezierCurveTo(cx + r*0.55, cy - r*0.65, cx + r*0.82, cy - r*0.1, cx + r*0.85, cy + r*0.5);
+    ctx.bezierCurveTo(cx + r*0.88, cy + r*0.75, cx + r*0.82, cy + r*0.85, cx + r*0.78, cy + r*0.8);
+    ctx.bezierCurveTo(cx + r*0.7,  cy + r*0.65, cx + r*0.62, cy + r*0.2,  cx + r*0.58, cy - r*0.05);
+    ctx.bezierCurveTo(cx + r*0.5,  cy - r*0.45, cx + r*0.32, cy - r*0.62, cx + r*0.22, cy - r*0.72);
+    ctx.closePath();
+    ctx.fill();
+    // Top cap
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy - r*0.72, r*0.42, r*0.2, 0, Math.PI, Math.PI*2);
+    ctx.fill();
+    // Highlight strands on left
+    ctx.strokeStyle = lighten(col);
+    ctx.lineWidth = r * 0.025;
+    ctx.globalAlpha = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - r*0.38, cy - r*0.68);
+    ctx.bezierCurveTo(cx - r*0.58, cy - r*0.3, cx - r*0.72, cy + r*0.2, cx - r*0.7, cy + r*0.6);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx - r*0.3, cy - r*0.7);
+    ctx.bezierCurveTo(cx - r*0.48, cy - r*0.2, cx - r*0.6, cy + r*0.3, cx - r*0.58, cy + r*0.65);
+    ctx.stroke();
+
+  } else if (style.includes('Bob')) {
+    // Realistic bob: smooth rounded cut ending at jaw level
+    const grad = ctx.createLinearGradient(cx - r*0.6, cy - r*0.7, cx, cy + r*0.35);
+    grad.addColorStop(0, lighten(col));
+    grad.addColorStop(0.4, col);
+    grad.addColorStop(1, darken(col));
+    ctx.fillStyle = grad;
+    // Right side
+    ctx.beginPath();
+    ctx.moveTo(cx + r*0.2, cy - r*0.78);
+    ctx.bezierCurveTo(cx + r*0.52, cy - r*0.7, cx + r*0.72, cy - r*0.42, cx + r*0.72, cy - r*0.02);
+    ctx.bezierCurveTo(cx + r*0.72, cy + r*0.32, cx + r*0.55, cy + r*0.42, cx + r*0.38, cy + r*0.4);
+    ctx.bezierCurveTo(cx + r*0.22, cy + r*0.38, cx + r*0.08, cy + r*0.22, cx, cy + r*0.18);
+    ctx.lineTo(cx, cy - r*0.3);
+    ctx.bezierCurveTo(cx + r*0.08, cy - r*0.52, cx + r*0.12, cy - r*0.72, cx + r*0.2, cy - r*0.78);
+    ctx.fill();
+    // Left side (mirror)
+    ctx.beginPath();
+    ctx.moveTo(cx - r*0.2, cy - r*0.78);
+    ctx.bezierCurveTo(cx - r*0.52, cy - r*0.7, cx - r*0.72, cy - r*0.42, cx - r*0.72, cy - r*0.02);
+    ctx.bezierCurveTo(cx - r*0.72, cy + r*0.32, cx - r*0.55, cy + r*0.42, cx - r*0.38, cy + r*0.4);
+    ctx.bezierCurveTo(cx - r*0.22, cy + r*0.38, cx - r*0.08, cy + r*0.22, cx, cy + r*0.18);
+    ctx.lineTo(cx, cy - r*0.3);
+    ctx.bezierCurveTo(cx - r*0.08, cy - r*0.52, cx - r*0.12, cy - r*0.72, cx - r*0.2, cy - r*0.78);
+    ctx.fill();
+    // Top
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy - r*0.75, r*0.35, r*0.18, 0, Math.PI, Math.PI*2);
+    ctx.fill();
+
+  } else if (style.includes('Bedhead')) {
+    // Messy bedhead: random tufts going various directions
+    // Base cap
+    ctx.beginPath();
+    ctx.arc(cx, cy - r*0.65, r*0.58, Math.PI + 0.15, Math.PI*2 - 0.15);
+    ctx.fill();
+    ctx.lineWidth = r * 0.1;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = col;
+    // Random tufts
+    const tufts = [
+      [cx - r*0.28, cy - r*0.82, cx - r*0.45, cy - r*1.08, cx - r*0.32, cy - r*1.12],
+      [cx - r*0.08, cy - r*0.88, cx - r*0.05, cy - r*1.15, cx + r*0.12, cy - r*1.1],
+      [cx + r*0.15, cy - r*0.85, cx + r*0.38, cy - r*1.05, cx + r*0.22, cy - r*1.14],
+      [cx - r*0.5,  cy - r*0.62, cx - r*0.72, cy - r*0.82, cx - r*0.65, cy - r*0.92],
+      [cx + r*0.48, cy - r*0.62, cx + r*0.7,  cy - r*0.78, cx + r*0.62, cy - r*0.9],
+      [cx - r*0.18, cy - r*0.9,  cx - r*0.35, cy - r*1.12, cx - r*0.15, cy - r*1.18],
+      [cx + r*0.32, cy - r*0.78, cx + r*0.52, cy - r*0.98, cx + r*0.48, cy - r*1.06],
+    ];
+    tufts.forEach(([x1,y1, x2,y2, x3,y3]) => {
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.quadraticCurveTo(x2, y2, x3, y3);
+      ctx.stroke();
+    });
+  }
+
+  ctx.restore();
+}
+
+function lighten(hex) {
+  try {
+    let c = parseInt(hex.replace('#',''), 16);
+    const r = Math.min(255, ((c >> 16) & 0xff) + 50);
+    const g = Math.min(255, ((c >> 8) & 0xff) + 50);
+    const b = Math.min(255, (c & 0xff) + 50);
+    return `rgb(${r},${g},${b})`;
+  } catch { return '#fff'; }
+}
+
+function darken(hex) {
+  // crude darken
+  try {
+    let c = parseInt(hex.slice(1), 16);
+    const r = Math.max(0, ((c >> 16) & 0xff) - 40);
+    const g = Math.max(0, ((c >> 8) & 0xff) - 40);
+    const b = Math.max(0, (c & 0xff) - 40);
+    return `rgb(${r},${g},${b})`;
+  } catch { return '#888'; }
+}
+
+// ── EYES ──────────────────────────────────────────────────────
+function drawEyes(ctx, eyeSize, col, shape, cx, cy, r) {
+  if (!eyeSize) return; // no eyes until unlocked
+  const sizeMap = { "Tiny (beady)": 0.065, "Small": 0.09, "Medium": 0.12, "Large": 0.16, "Extra Large (googly!)": 0.21 };
+  const er = r * (sizeMap[eyeSize] || 0.12);
+  const ex = r * 0.28, ey = cy - r * 0.06;
+
+  [[cx - ex, ey], [cx + ex, ey]].forEach(([ex2, ey2]) => {
+    // white
+    ctx.save(); ctx.fillStyle = 'white'; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 4;
+    ctx.beginPath(); ctx.ellipse(ex2, ey2, er, er * 0.9, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    // pupil
+    ctx.save(); ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(ex2, ey2 + er * 0.08, er * 0.55, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    // inner pupil
+    ctx.save(); ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.arc(ex2, ey2 + er * 0.08, er * 0.25, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    // shine
+    ctx.save(); ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.arc(ex2 - er * 0.2, ey2 - er * 0.18, er * 0.18, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+  });
+}
+
+// ── EYEBROWS ──────────────────────────────────────────────────
+function drawEyebrows(ctx, brows, cx, cy, r) {
+  if (!brows || brows.includes('Invisible')) return;
+  ctx.save(); ctx.strokeStyle = '#553311'; ctx.lineCap = 'round';
+  const ey = cy - r * 0.25, ex = r * 0.28;
+  ctx.lineWidth = r * 0.055;
+  if (brows.includes('Bushy') || brows.includes('Caterpillar')) {
+    ctx.lineWidth = r * 0.09;
+    ctx.beginPath(); ctx.moveTo(cx - ex - r*0.12, ey); ctx.lineTo(cx - ex + r*0.12, ey); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + ex - r*0.12, ey); ctx.lineTo(cx + ex + r*0.12, ey); ctx.stroke();
+  } else if (brows.includes('Arched')) {
+    ctx.beginPath(); ctx.arc(cx - ex, ey - r*0.04, r*0.16, Math.PI + 0.5, Math.PI*2 - 0.5); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx + ex, ey - r*0.04, r*0.16, Math.PI + 0.5, Math.PI*2 - 0.5); ctx.stroke();
+  } else if (brows.includes('Angry')) {
+    ctx.beginPath(); ctx.moveTo(cx - ex - r*0.12, ey - r*0.06); ctx.lineTo(cx - ex + r*0.12, ey + r*0.04); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + ex - r*0.12, ey + r*0.04); ctx.lineTo(cx + ex + r*0.12, ey - r*0.06); ctx.stroke();
+  } else if (brows.includes('Surprise')) {
+    ctx.beginPath(); ctx.arc(cx - ex, ey - r*0.1, r*0.14, Math.PI + 0.6, Math.PI*2 - 0.6); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx + ex, ey - r*0.1, r*0.14, Math.PI + 0.6, Math.PI*2 - 0.6); ctx.stroke();
+  } else if (brows.includes('Wiggly')) {
+    ctx.beginPath();
+    ctx.moveTo(cx - ex - r*0.12, ey); ctx.bezierCurveTo(cx - ex - r*0.04, ey - r*0.07, cx - ex + r*0.04, ey + r*0.05, cx - ex + r*0.12, ey - r*0.03); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx + ex - r*0.12, ey - r*0.03); ctx.bezierCurveTo(cx + ex - r*0.04, ey + r*0.05, cx + ex + r*0.04, ey - r*0.07, cx + ex + r*0.12, ey); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.moveTo(cx - ex - r*0.1, ey); ctx.lineTo(cx - ex + r*0.1, ey); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + ex - r*0.1, ey); ctx.lineTo(cx + ex + r*0.1, ey); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ── CHEEKS ────────────────────────────────────────────────────
+function drawCheeks(ctx, cheeks, cx, cy, r) {
+  if (!cheeks || cheeks.includes('No Markings') || cheeks.includes('Chubby')) return;
+  ctx.save();
+  const chy = cy + r * 0.1, chx = r * 0.42;
+  if (cheeks.includes('Blush') || cheeks.includes('Heart')) {
+    ctx.fillStyle = '#ff99bb'; ctx.globalAlpha = 0.45;
+    ctx.beginPath(); ctx.ellipse(cx - chx, chy, r*0.18, r*0.11, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + chx, chy, r*0.18, r*0.11, 0, 0, Math.PI*2); ctx.fill();
+  } else if (cheeks.includes('Freckle') || cheeks.includes('Star')) {
+    ctx.fillStyle = '#cc8855'; ctx.globalAlpha = 0.65;
+    [-chx - r*0.08, -chx, -chx + r*0.08].forEach(ox => { ctx.beginPath(); ctx.arc(cx + ox, chy, r*0.03, 0, Math.PI*2); ctx.fill(); });
+    [chx - r*0.08, chx, chx + r*0.08].forEach(ox => { ctx.beginPath(); ctx.arc(cx + ox, chy, r*0.03, 0, Math.PI*2); ctx.fill(); });
+  } else if (cheeks.includes('Glitter')) {
+    ctx.fillStyle = '#ffeeaa'; ctx.globalAlpha = 0.8;
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath(); ctx.arc(cx - chx + (i-2)*r*0.06, chy + (i%2)*r*0.04, r*0.025, 0, Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(cx + chx + (i-2)*r*0.06, chy + (i%2)*r*0.04, r*0.025, 0, Math.PI*2); ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+// ── NOSE ──────────────────────────────────────────────────────
+function drawNose(ctx, nose, cx, cy, r) {
+  if (!nose || nose.includes('No Nose')) return;
+  ctx.save();
+  const ny = cy + r * 0.12;
+  if (nose.includes('Button') || nose.includes('Bunny')) {
+    ctx.fillStyle = '#dd6655';
+    ctx.beginPath(); ctx.arc(cx, ny, r*0.08, 0, Math.PI*2); ctx.fill();
+  } else if (nose.includes('Big Round')) {
+    ctx.fillStyle = '#cc5544';
+    ctx.beginPath(); ctx.arc(cx, ny, r*0.12, 0, Math.PI*2); ctx.fill();
+  } else if (nose.includes('Pig')) {
+    ctx.fillStyle = '#ff9999';
+    ctx.beginPath(); ctx.ellipse(cx, ny, r*0.13, r*0.09, 0, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#cc5566';
+    ctx.beginPath(); ctx.arc(cx - r*0.05, ny + r*0.02, r*0.03, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + r*0.05, ny + r*0.02, r*0.03, 0, Math.PI*2); ctx.fill();
+  } else if (nose.includes('Star')) {
+    ctx.fillStyle = '#ffee55';
+    drawStar(ctx, cx, ny, r*0.05, r*0.10, 5); ctx.fill();
+  } else if (nose.includes('Heart')) {
+    ctx.fillStyle = '#ff4488';
+    drawHeart(ctx, cx, ny - r*0.06, r*0.08);
+  } else if (nose.includes('Clown')) {
+    ctx.fillStyle = '#ff2200';
+    ctx.beginPath(); ctx.arc(cx, ny, r*0.11, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#ff6644';
+    ctx.beginPath(); ctx.arc(cx - r*0.03, ny - r*0.03, r*0.05, 0, Math.PI*2); ctx.fill();
+  } else {
+    // Bobbly default
+    ctx.fillStyle = '#dd6655';
+    ctx.beginPath(); ctx.arc(cx, ny, r*0.07, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ── MOUTH ─────────────────────────────────────────────────────
+function drawMouth(ctx, mouthSize, teeth, cx, cy, r) {
+  if (!mouthSize) return;
+  ctx.save();
+  const my = cy + r * 0.3;
+  const sizeMap = { "Tiny Dot Mouth": 0.06, "Small Smile": 0.12, "Medium Grin": 0.18, "Big Goofy Grin": 0.26, "Massive Toothy Smile": 0.34 };
+  const mw = r * (sizeMap[mouthSize] || 0.18);
+
+  ctx.strokeStyle = '#442211'; ctx.lineWidth = r * 0.045; ctx.lineCap = 'round';
+
+  if (mouthSize.includes('Tiny Dot')) {
+    ctx.fillStyle = '#552211';
+    ctx.beginPath(); ctx.arc(cx, my, r*0.04, 0, Math.PI*2); ctx.fill();
+  } else {
+    ctx.beginPath(); ctx.arc(cx, my - mw*0.3, mw, 0.2, Math.PI - 0.2); ctx.stroke();
+    // teeth inside mouth
+    if (teeth && !teeth.includes('No Teeth')) {
+      ctx.fillStyle = teeth.includes('Gold') ? '#ffcc00' : 'white';
+      const tw = mw * 0.8;
+      if (teeth.includes('Fang') || teeth.includes('Vampire')) {
+        ctx.fillStyle = 'white';
+        ctx.beginPath(); ctx.moveTo(cx - mw*0.3, my + mw*0.05); ctx.lineTo(cx - mw*0.2, my + mw*0.05); ctx.lineTo(cx - mw*0.22, my + mw*0.22); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(cx + mw*0.2, my + mw*0.05); ctx.lineTo(cx + mw*0.3, my + mw*0.05); ctx.lineTo(cx + mw*0.22, my + mw*0.22); ctx.closePath(); ctx.fill();
+      } else if (teeth.includes('Buck')) {
+        ctx.fillStyle = 'white';
+        ctx.beginPath(); roundRect(ctx, cx - mw*0.22, my, mw*0.18, mw*0.25, 3); ctx.fill();
+        ctx.beginPath(); roundRect(ctx, cx + mw*0.04, my, mw*0.18, mw*0.25, 3); ctx.fill();
+      } else if (teeth.includes('Snaggletooth')) {
+        ctx.fillStyle = 'white';
+        ctx.beginPath(); roundRect(ctx, cx - mw*0.15, my, mw*0.12, mw*0.2, 2); ctx.fill();
+        ctx.fillStyle = '#ffee88';
+        ctx.beginPath(); roundRect(ctx, cx + mw*0.06, my, mw*0.10, mw*0.28, 2); ctx.fill();
+      } else if (teeth.includes('Gold')) {
+        ctx.fillStyle = '#ffcc00';
+        ctx.beginPath(); roundRect(ctx, cx - mw*0.08, my, mw*0.16, mw*0.2, 2); ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.beginPath(); roundRect(ctx, cx - mw*0.26, my, mw*0.14, mw*0.18, 2); ctx.fill();
+        ctx.beginPath(); roundRect(ctx, cx + mw*0.12, my, mw*0.14, mw*0.18, 2); ctx.fill();
+      } else {
+        // Perfect / Tiny / default - row of teeth
+        const numT = mouthSize.includes('Massive') ? 6 : 4;
+        const tw2 = (tw * 1.6) / numT;
+        for (let i = 0; i < numT; i++) {
+          ctx.beginPath(); roundRect(ctx, cx - tw*0.8 + i*tw2, my, tw2 - 2, mw*0.2, 2); ctx.fill();
+        }
+      }
+    }
+  }
+  ctx.restore();
+}
+
+// ── ARMS ──────────────────────────────────────────────────────
+function drawArms(ctx, arms, cx, cy, r, col) {
+  if (!arms || arms.includes('No Arms')) return;
+  ctx.save(); ctx.fillStyle = col; ctx.strokeStyle = col;
+  if (arms.includes('Stubby')) {
+    ctx.lineWidth = r*0.22; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx - r*0.9, cy - r*0.05); ctx.lineTo(cx - r*0.65, cy + r*0.1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.9, cy - r*0.05); ctx.lineTo(cx + r*0.65, cy + r*0.1); ctx.stroke();
+  } else if (arms.includes('Noodle')) {
+    ctx.lineWidth = r*0.12; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx - r*0.92, cy); ctx.bezierCurveTo(cx-r*1.15, cy-r*0.3, cx-r*1.2, cy+r*0.2, cx-r*1.05, cy+r*0.5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.92, cy); ctx.bezierCurveTo(cx+r*1.15, cy-r*0.3, cx+r*1.2, cy+r*0.2, cx+r*1.05, cy+r*0.5); ctx.stroke();
+  } else if (arms.includes('Chubby')) {
+    ctx.lineWidth = r*0.28; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx - r*0.9, cy); ctx.lineTo(cx - r*1.1, cy + r*0.15); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.9, cy); ctx.lineTo(cx + r*1.1, cy + r*0.15); ctx.stroke();
+  } else if (arms.includes('T-Rex')) {
+    ctx.lineWidth = r*0.18; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx - r*0.82, cy - r*0.05); ctx.lineTo(cx - r*0.95, cy + r*0.2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.82, cy - r*0.05); ctx.lineTo(cx + r*0.95, cy + r*0.2); ctx.stroke();
+  } else if (arms.includes('Tentacle')) {
+    ctx.lineWidth = r*0.1; ctx.lineCap = 'round';
+    for (let i = 0; i < 3; i++) {
+      const oy = (i - 1) * r * 0.2;
+      ctx.beginPath(); ctx.moveTo(cx - r*0.88, cy + oy); ctx.bezierCurveTo(cx-r*1.15, cy+oy-r*0.2, cx-r*1.25, cy+oy+r*0.3, cx-r*1.1, cy+oy+r*0.55); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx + r*0.88, cy + oy); ctx.bezierCurveTo(cx+r*1.15, cy+oy-r*0.2, cx+r*1.25, cy+oy+r*0.3, cx+r*1.1, cy+oy+r*0.55); ctx.stroke();
+    }
+  } else if (arms.includes('Paws') || arms.includes('Fluffy')) {
+    ctx.lineWidth = r*0.26; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx - r*0.92, cy); ctx.lineTo(cx - r*1.12, cy + r*0.1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.92, cy); ctx.lineTo(cx + r*1.12, cy + r*0.1); ctx.stroke();
+    // paw pads
+    ctx.fillStyle = '#ffccbb';
+    ctx.beginPath(); ctx.arc(cx - r*1.12, cy + r*0.1, r*0.1, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + r*1.12, cy + r*0.1, r*0.1, 0, Math.PI*2); ctx.fill();
+  } else {
+    ctx.lineWidth = r*0.18; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx - r*0.92, cy); ctx.lineTo(cx - r*1.1, cy + r*0.12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.92, cy); ctx.lineTo(cx + r*1.1, cy + r*0.12); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ── SHOES ─────────────────────────────────────────────────────
+function drawShoes(ctx, shoes, cx, cy, r) {
+  if (!shoes || shoes.includes('No Shoes') || shoes.includes('bare')) return;
+  ctx.save();
+  const sy = cy + r * 0.82;
+  const sw = r * 0.28, sh = r * 0.15;
+
+  let shoeCol = '#ee4444', detailCol = '#ffffff';
+  if (shoes.includes('Cowboy')) { shoeCol = '#8B4513'; detailCol = '#d4a060'; }
+  else if (shoes.includes('Ballet')) { shoeCol = '#ffaacc'; detailCol = '#ff66aa'; }
+  else if (shoes.includes('Clown')) { shoeCol = '#ff3300'; detailCol = '#ffff00'; }
+  else if (shoes.includes('Rainbow')) { shoeCol = '#4488ff'; detailCol = '#ff44ff'; }
+  else if (shoes.includes('Sparkly')) { shoeCol = '#aa44ff'; detailCol = '#ffee00'; }
+  else if (shoes.includes('Rocket')) { shoeCol = '#aaaaaa'; detailCol = '#ffee00'; }
+  else if (shoes.includes('Polka')) { shoeCol = '#ff6600'; detailCol = '#ffffff'; }
+
+  // left shoe
+  ctx.fillStyle = shoeCol;
+  ctx.beginPath(); ctx.ellipse(cx - r*0.38, sy, sw, sh, -0.1, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = detailCol;
+  if (shoes.includes('Clown')) { ctx.beginPath(); ctx.ellipse(cx - r*0.38, sy, sw*1.5, sh, -0.1, 0, Math.PI*2); ctx.restore(); ctx.save(); ctx.fillStyle = shoeCol; ctx.beginPath(); ctx.ellipse(cx - r*0.38, sy, sw, sh, -0.1, 0, Math.PI*2); ctx.fill(); }
+  if (shoes.includes('Sparkly') || shoes.includes('Rainbow')) {
+    ctx.globalAlpha = 0.7;
+    ctx.beginPath(); ctx.arc(cx - r*0.32, sy - sh*0.3, sh*0.25, 0, Math.PI*2); ctx.fill();
+  }
+  // right shoe
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = shoeCol;
+  ctx.beginPath(); ctx.ellipse(cx + r*0.38, sy, sw, sh, 0.1, 0, Math.PI*2); ctx.fill();
+  if (shoes.includes('Sparkly') || shoes.includes('Rainbow')) {
+    ctx.fillStyle = detailCol; ctx.globalAlpha = 0.7;
+    ctx.beginPath(); ctx.arc(cx + r*0.44, sy - sh*0.3, sh*0.25, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ── TAIL ──────────────────────────────────────────────────────
+function drawTail(ctx, tail, cx, cy, r, col) {
+  if (!tail || tail.includes('No Tail')) return;
+  ctx.save();
+  if (tail.includes('Fox')) {
+    ctx.strokeStyle = '#ff9966'; ctx.lineWidth = r*0.18; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx + r*0.88, cy + r*0.22); ctx.bezierCurveTo(cx+r*1.4, cy, cx+r*1.5, cy-r*0.7, cx+r*1.15, cy-r*0.9); ctx.stroke();
+    ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(cx+r*1.15, cy-r*0.9, r*0.15, 0, Math.PI*2); ctx.fill();
+  } else if (tail.includes('Bunny')) {
+    ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.arc(cx + r*0.88, cy + r*0.38, r*0.16, 0, Math.PI*2); ctx.fill();
+  } else if (tail.includes('Dragon')) {
+    ctx.strokeStyle = '#55dd66'; ctx.lineWidth = r*0.14; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx + r*0.88, cy + r*0.28); ctx.bezierCurveTo(cx+r*1.3, cy+r*0.5, cx+r*1.5, cy, cx+r*1.2, cy-r*0.5); ctx.stroke();
+  } else if (tail.includes('Curly') || tail.includes('Pig')) {
+    ctx.strokeStyle = col; ctx.lineWidth = r*0.1; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(cx + r*0.98, cy + r*0.3, r*0.2, 0, Math.PI*1.8); ctx.stroke();
+  } else if (tail.includes('Lightning')) {
+    ctx.strokeStyle = '#ffee00'; ctx.lineWidth = r*0.09;
+    ctx.beginPath(); ctx.moveTo(cx+r*0.9, cy+r*0.1); ctx.lineTo(cx+r*1.15, cy-r*0.1); ctx.lineTo(cx+r*1.05, cy-r*0.1); ctx.lineTo(cx+r*1.35, cy-r*0.45); ctx.stroke();
+  } else if (tail.includes('Raccoon') || tail.includes('Striped')) {
+    ctx.strokeStyle = '#555'; ctx.lineWidth = r*0.15; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx + r*0.88, cy + r*0.22); ctx.bezierCurveTo(cx+r*1.35, cy, cx+r*1.4, cy-r*0.5, cx+r*1.1, cy-r*0.75); ctx.stroke();
+    ctx.strokeStyle = col; ctx.lineWidth = r*0.07;
+    for (let t = 0; t < 1; t += 0.28) {
+      const bx = cx+r*0.88 + (cx+r*1.1 - cx-r*0.88)*t;
+      const by = cy+r*0.22 + (cy-r*0.75 - cy-r*0.22)*t;
+      ctx.beginPath(); ctx.arc(bx, by, r*0.12, 0, Math.PI*2); ctx.stroke();
+    }
+  } else if (tail.includes('Peacock')) {
+    ctx.fillStyle = '#2255cc'; ctx.globalAlpha = 0.7;
+    for (let a = -0.6; a <= 0.6; a += 0.2) {
+      ctx.beginPath(); ctx.moveTo(cx+r*0.92, cy+r*0.25); ctx.lineTo(cx+r*1.45+Math.sin(a)*r*0.4, cy-r*0.5+Math.cos(a)*r*0.4); ctx.lineWidth = r*0.06; ctx.strokeStyle = '#3388ee'; ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx+r*1.45+Math.sin(a)*r*0.4, cy-r*0.5+Math.cos(a)*r*0.4, r*0.09, 0, Math.PI*2); ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+// ── HAT ───────────────────────────────────────────────────────
+function drawHat(ctx, hat, cx, cy, r) {
+  if (!hat || hat.includes('No Hat')) return;
+  ctx.save();
+  const htop = cy - r * 0.88;
+  if (hat.includes('Top Hat')) {
+    ctx.fillStyle = '#1a1a2e'; ctx.strokeStyle = '#555'; ctx.lineWidth = 1.5;
+    ctx.fillRect(cx - r*0.35, htop - r*0.42, r*0.7, r*0.42); ctx.strokeRect(cx - r*0.35, htop - r*0.42, r*0.7, r*0.42);
+    ctx.fillRect(cx - r*0.5, htop, r, r*0.1); ctx.strokeRect(cx - r*0.5, htop, r, r*0.1);
+    ctx.fillStyle = '#882222'; ctx.fillRect(cx - r*0.35, htop - r*0.03, r*0.7, r*0.04);
+  } else if (hat.includes('Wizard')) {
+    ctx.fillStyle = '#5522aa';
+    ctx.beginPath(); ctx.moveTo(cx, htop - r*0.6); ctx.lineTo(cx + r*0.4, htop + r*0.05); ctx.lineTo(cx - r*0.4, htop + r*0.05); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#3399dd';
+    ctx.beginPath(); ctx.ellipse(cx, htop + r*0.05, r*0.48, r*0.1, 0, 0, Math.PI*2); ctx.fill();
+    // stars on hat
+    ctx.fillStyle = '#ffee44';
+    drawStar(ctx, cx - r*0.1, htop - r*0.22, r*0.04, r*0.08, 5); ctx.fill();
+    drawStar(ctx, cx + r*0.12, htop - r*0.38, r*0.03, r*0.06, 5); ctx.fill();
+  } else if (hat.includes('Crown')) {
+    ctx.fillStyle = '#ffcc00';
+    ctx.beginPath();
+    ctx.moveTo(cx - r*0.4, htop + r*0.04); ctx.lineTo(cx - r*0.4, htop - r*0.28);
+    ctx.lineTo(cx - r*0.22, htop - r*0.12); ctx.lineTo(cx, htop - r*0.36);
+    ctx.lineTo(cx + r*0.22, htop - r*0.12); ctx.lineTo(cx + r*0.4, htop - r*0.28);
+    ctx.lineTo(cx + r*0.4, htop + r*0.04); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#ff4444';
+    ctx.beginPath(); ctx.arc(cx, htop - r*0.36, r*0.07, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#4444ff';
+    ctx.beginPath(); ctx.arc(cx - r*0.4, htop - r*0.28, r*0.055, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + r*0.4, htop - r*0.28, r*0.055, 0, Math.PI*2); ctx.fill();
+  } else if (hat.includes('Party')) {
+    ctx.fillStyle = '#ff44dd';
+    ctx.beginPath(); ctx.moveTo(cx, htop - r*0.5); ctx.lineTo(cx + r*0.32, htop + r*0.04); ctx.lineTo(cx - r*0.32, htop + r*0.04); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#ffee00'; ctx.lineWidth = r*0.04;
+    ctx.beginPath(); ctx.moveTo(cx - r*0.32, htop + r*0.04); ctx.lineTo(cx, htop - r*0.5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.32, htop + r*0.04); ctx.lineTo(cx, htop - r*0.5); ctx.stroke();
+    ctx.fillStyle = '#ffee00'; ctx.beginPath(); ctx.arc(cx, htop - r*0.5, r*0.07, 0, Math.PI*2); ctx.fill();
+  } else if (hat.includes('Baseball') || hat.includes('Cap')) {
+    ctx.fillStyle = '#2244ee';
+    roundRect(ctx, cx - r*0.38, htop - r*0.22, r*0.76, r*0.22, r*0.05); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + r*0.28, htop + r*0.01, r*0.25, r*0.06, 0.2, 0, Math.PI*2); ctx.fill();
+  } else if (hat.includes('Beret')) {
+    ctx.fillStyle = '#883322';
+    ctx.beginPath(); ctx.ellipse(cx + r*0.1, htop - r*0.08, r*0.42, r*0.2, -0.2, 0, Math.PI*2); ctx.fill();
+  } else if (hat.includes('Pirate')) {
+    ctx.fillStyle = '#111';
+    ctx.beginPath(); ctx.moveTo(cx - r*0.42, htop + r*0.04); ctx.lineTo(cx - r*0.32, htop - r*0.35); ctx.lineTo(cx, htop - r*0.42); ctx.lineTo(cx + r*0.32, htop - r*0.35); ctx.lineTo(cx + r*0.42, htop + r*0.04); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'white'; ctx.lineWidth = r*0.04;
+    ctx.beginPath(); ctx.moveTo(cx - r*0.1, htop - r*0.18); ctx.lineTo(cx + r*0.1, htop - r*0.18); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, htop - r*0.28); ctx.lineTo(cx, htop - r*0.08); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+// ── ACCESSORIES ───────────────────────────────────────────────
+function drawAccessory(ctx, acc, cx, cy, r) {
+  if (!acc) return;
+  ctx.save();
+  if (acc.includes('Bow')) {
+    ctx.fillStyle = '#ff3399';
+    ctx.beginPath(); ctx.moveTo(cx - r*0.6, cy - r*0.55); ctx.lineTo(cx - r*0.38, cy - r*0.48); ctx.lineTo(cx - r*0.38, cy - r*0.62); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx - r*0.16, cy - r*0.55); ctx.lineTo(cx - r*0.38, cy - r*0.48); ctx.lineTo(cx - r*0.38, cy - r*0.62); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#ff66bb'; ctx.beginPath(); ctx.arc(cx - r*0.38, cy - r*0.55, r*0.07, 0, Math.PI*2); ctx.fill();
+  } else if (acc.includes('Monocle')) {
+    ctx.strokeStyle = '#ffcc00'; ctx.lineWidth = r*0.04;
+    ctx.beginPath(); ctx.arc(cx + r*0.28, cy - r*0.06, r*0.2, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.48, cy + r*0.1); ctx.lineTo(cx + r*0.58, cy + r*0.3); ctx.stroke();
+  } else if (acc.includes('Star Badge')) {
+    ctx.translate(cx + r*0.6, cy + r*0.2);
+    drawStar(ctx, 0, 0, r*0.08, r*0.16, 5);
+    ctx.fillStyle = '#ffcc00'; ctx.fill();
+  } else if (acc.includes('Wand')) {
+    ctx.strokeStyle = '#aa88ff'; ctx.lineWidth = r*0.07; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(cx + r*0.65, cy + r*0.45); ctx.lineTo(cx + r*0.9, cy + r*0.1); ctx.stroke();
+    drawStar(ctx, cx + r*0.9, cy + r*0.1, r*0.06, r*0.12, 5);
+    ctx.fillStyle = '#ffee00'; ctx.fill();
+  } else if (acc.includes('Bow Tie')) {
+    ctx.fillStyle = '#ff3399';
+    ctx.beginPath(); ctx.moveTo(cx - r*0.24, cy + r*0.38); ctx.lineTo(cx - r*0.06, cy + r*0.44); ctx.lineTo(cx - r*0.06, cy + r*0.32); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.24, cy + r*0.38); ctx.lineTo(cx + r*0.06, cy + r*0.44); ctx.lineTo(cx + r*0.06, cy + r*0.32); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#ff66bb'; ctx.beginPath(); ctx.arc(cx, cy + r*0.38, r*0.06, 0, Math.PI*2); ctx.fill();
+  } else if (acc.includes('Cape')) {
+    ctx.fillStyle = '#880000'; ctx.globalAlpha = 0.85;
+    ctx.beginPath(); ctx.moveTo(cx - r*0.7, cy - r*0.3); ctx.bezierCurveTo(cx - r*0.9, cy + r*0.8, cx - r*0.1, cy + r*1.0, cx, cy + r*0.85); ctx.bezierCurveTo(cx + r*0.1, cy + r*1.0, cx + r*0.9, cy + r*0.8, cx + r*0.7, cy - r*0.3); ctx.fill();
+    ctx.fillStyle = '#ffeeee'; ctx.globalAlpha = 0.9;
+    ctx.beginPath(); ctx.arc(cx, cy - r*0.38, r*0.1, 0, Math.PI*2); ctx.fill();
+  } else if (acc.includes('Glasses')) {
+    ctx.strokeStyle = '#885522'; ctx.lineWidth = r*0.05;
+    ctx.beginPath(); ctx.arc(cx - r*0.26, cy - r*0.06, r*0.18, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx + r*0.26, cy - r*0.06, r*0.18, 0, Math.PI*2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - r*0.08, cy - r*0.06); ctx.lineTo(cx + r*0.08, cy - r*0.06); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx - r*0.44, cy - r*0.1); ctx.lineTo(cx - r*0.56, cy - r*0.08); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx + r*0.44, cy - r*0.1); ctx.lineTo(cx + r*0.56, cy - r*0.08); ctx.stroke();
+  } else if (acc.includes('Heart')) {
+    ctx.fillStyle = '#ff3366';
+    drawHeart(ctx, cx, cy + r*0.55, r*0.12);
+    ctx.strokeStyle = '#ffaacc'; ctx.lineWidth = r*0.03;
+    ctx.beginPath(); ctx.moveTo(cx, cy + r*0.43); ctx.lineTo(cx, cy + r*0.38); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawAccessory2(ctx, acc, cx, cy, r) {
+  if (!acc) return;
+  ctx.save();
+  if (acc.includes('Backpack')) {
+    ctx.fillStyle = '#3366ff';
+    roundRect(ctx, cx + r*0.55, cy - r*0.25, r*0.32, r*0.45, r*0.06); ctx.fill();
+    ctx.fillStyle = '#2244cc';
+    ctx.beginPath(); ctx.arc(cx + r*0.71, cy - r*0.04, r*0.08, 0, Math.PI*2); ctx.fill();
+  } else if (acc.includes('Flower Crown')) {
+    const flowers = [-0.28, -0.1, 0.1, 0.28];
+    flowers.forEach(fx => {
+      const angle = -0.88; // approximate top arc
+      const bx = cx + Math.cos(Math.PI + fx) * r * 0.75;
+      const by = cy + Math.sin(Math.PI + fx) * r * 0.75;
+      ctx.fillStyle = fx % 0.2 < 0.1 ? '#ff66aa' : '#ffee44';
+      ctx.beginPath(); ctx.arc(bx, by, r*0.08, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'white';
+      ctx.beginPath(); ctx.arc(bx, by, r*0.04, 0, Math.PI*2); ctx.fill();
+    });
+  } else if (acc.includes('Scarf')) {
+    ctx.fillStyle = '#dd2222'; ctx.globalAlpha = 0.9;
+    ctx.beginPath(); ctx.ellipse(cx, cy + r*0.55, r*0.42, r*0.1, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + r*0.3, cy + r*0.65, r*0.1, r*0.2, 0.3, 0, Math.PI*2); ctx.fill();
+  } else if (acc.includes('Socks')) {
+    // striped socks near shoes
+    ctx.fillStyle = '#ff4444';
+    ctx.fillRect(cx - r*0.58, cy + r*0.7, r*0.22, r*0.12);
+    ctx.fillRect(cx + r*0.36, cy + r*0.7, r*0.22, r*0.12);
+    ctx.fillStyle = 'white';
+    ctx.fillRect(cx - r*0.58, cy + r*0.73, r*0.22, r*0.03);
+    ctx.fillRect(cx + r*0.36, cy + r*0.73, r*0.22, r*0.03);
+  } else if (acc.includes('Watch')) {
+    ctx.fillStyle = '#888'; ctx.strokeStyle = '#555'; ctx.lineWidth = r*0.03;
+    roundRect(ctx, cx + r*0.78, cy + r*0.15, r*0.14, r*0.1, r*0.02); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#88ffaa';
+    roundRect(ctx, cx + r*0.80, cy + r*0.17, r*0.1, r*0.06, r*0.01); ctx.fill();
+  } else if (acc.includes('Bracelet') || acc.includes('Friendship')) {
+    ctx.strokeStyle = '#ff66cc'; ctx.lineWidth = r*0.06; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(cx + r*0.88, cy + r*0.22, r*0.1, 0.3, Math.PI - 0.3); ctx.stroke();
+  } else if (acc.includes('Ear Ring')) {
+    ctx.fillStyle = '#ffcc00';
+    ctx.beginPath(); ctx.arc(cx - r*0.64, cy - r*0.0, r*0.06, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx + r*0.64, cy - r*0.0, r*0.06, 0, Math.PI*2); ctx.fill();
+  } else if (acc.includes('Tail Bow')) {
+    ctx.fillStyle = '#ff44aa';
+    ctx.beginPath(); ctx.arc(cx + r*0.88, cy + r*0.38, r*0.1, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ── HELPER SHAPES ─────────────────────────────────────────────
+function drawStar(ctx, cx, cy, inner, outer, points) {
+  ctx.beginPath();
+  for (let i = 0; i < points * 2; i++) {
+    const R = i % 2 === 0 ? outer : inner;
+    const a = (i * Math.PI) / points - Math.PI / 2;
+    ctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R);
+  }
+  ctx.closePath();
+}
+
+function drawHeart(ctx, cx, cy, size) {
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + size * 0.35);
+  ctx.bezierCurveTo(cx - size, cy - size * 0.5, cx - size*2, cy + size*0.15, cx, cy + size);
+  ctx.bezierCurveTo(cx + size*2, cy + size*0.15, cx + size, cy - size*0.5, cx, cy + size*0.35);
+  ctx.fill();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+// ── GAME OVER / WIN ───────────────────────────────────────────
+function gameOver() {
+  const pct = Math.round((state.qIdx / 20) * 100);
+  document.getElementById('go-pct').textContent = pct + '%';
+  document.getElementById('go-pct2').textContent = pct + '%';
+  drawMbob('go-canvas', 260, 240);
+  showScreen('gameover');
+}
+
+function winGame() {
+  const title = state.mbob.title || '';
+  const name = state.mbob.name || 'Mbob';
+  document.getElementById('win-name').textContent = `${title} ${name}`.trim();
+  drawMbob('win-canvas', 360, 340);
+
+  const wd = document.getElementById('win-traits');
+  wd.innerHTML = '';
+  const row = document.createElement('div');
+  row.className = 'traits-row'; row.style.justifyContent = 'center';
+  TRAITS.forEach(td => {
+    const v = state.mbob[td.key];
+    if (v) {
+      const chip = document.createElement('span');
+      chip.className = 'trait-chip unlocked';
+      chip.textContent = `${td.label}: ${v}`;
+      row.appendChild(chip);
+    }
+  });
+  wd.appendChild(row);
+  showScreen('win');
+}
+
+// ── BOOT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btn-start').addEventListener('click', startGame);
+  document.getElementById('btn-retry').addEventListener('click', startGame);
+  document.getElementById('btn-another').addEventListener('click', startGame);
+  document.getElementById('confirm-btn').addEventListener('click', confirmTrait);
+});
+</script>
+</body>
+</html>

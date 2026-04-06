@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mbob Builder — Maths Games</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  min-height: 100vh;
+  font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  background: #0a0a1a;
+  color: #ffffff;
+}
+body {
+  background-image:
+    radial-gradient(ellipse at 20% 20%, rgba(40,20,100,0.7) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, rgba(20,10,60,0.6) 0%, transparent 55%);
+}
+.wrap {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+  text-align: center;
+}
+.logo {
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #ff88cc, #88aaff, #ffdd55, #88ffcc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 0 30px rgba(180,120,255,0.5));
+}
+.tagline {
+  color: #8888aa;
+  font-size: 0.95rem;
+  margin-bottom: 40px;
+}
+.mbob-emoji {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 16px;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.section-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #666688;
+  margin-bottom: 14px;
+  margin-top: 36px;
+}
+.games {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.game-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.1);
+  border-radius: 18px;
+  padding: 16px 20px;
+  text-decoration: none;
+  color: white;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  text-align: left;
+}
+.game-btn:hover, .game-btn:active {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.25);
+  transform: translateY(-2px);
+}
+.game-icon {
+  font-size: 2.2rem;
+  flex-shrink: 0;
+  width: 48px;
+  text-align: center;
+}
+.game-info { flex: 1; }
+.game-name {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 3px;
+}
+.game-desc {
+  font-size: 0.78rem;
+  color: #8888aa;
+  line-height: 1.4;
+}
+.game-arrow {
+  font-size: 1.2rem;
+  color: #555577;
+  flex-shrink: 0;
+}
+
+/* Colour accents per game */
+.contest  { border-color: rgba(68,170,255,0.3); }
+.contest .game-name { color: #88ccff; }
+.contest2 { border-color: rgba(34,221,170,0.3); }
+.contest2 .game-name { color: #66ffdd; }
+.general  { border-color: rgba(180,120,255,0.3); }
+.general .game-name { color: #cc99ff; }
+.pct      { border-color: rgba(68,255,136,0.3); }
+.pct .game-name { color: #88ffaa; }
+.dist     { border-color: rgba(200,150,255,0.3); }
+.dist .game-name { color: #cc99ff; }
+.shapes   { border-color: rgba(232,96,122,0.3); }
+.shapes .game-name { color: #ff99bb; }
+.funfacts { border-color: rgba(255,110,180,0.3); }
+.funfacts .game-name { color: #ffaacc; }
+
+.footer {
+  margin-top: 48px;
+  color: #444466;
+  font-size: 0.75rem;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="mbob-emoji">🐾</span>
+  <div class="logo">Mbob Builder</div>
+  <p class="tagline">Answer questions · Build your fluffy creature · Have fun!</p>
+
+  <div class="section-title">🏆 Contest Challenges</div>
+  <div class="games">
+    <a class="game-btn contest" href="mbob_contest.html">
+      <div class="game-icon">🏆</div>
+      <div class="game-info">
+        <div class="game-name">Mbob Contest I</div>
+        <div class="game-desc">250 questions · Real 4th Grade Math League contests 2004–2019</div>
+      </div>
+      <div class="game-arrow">›</div>
+    </a>
+    <a class="game-btn contest2" href="mbob_contest2.html">
+      <div class="game-icon">🥇</div>
+      <div class="game-info">
+        <div class="game-name">Mbob Contest II</div>
+        <div class="game-desc">150 questions · Real 4th Grade Math League contests 1996–2001</div>
+      </div>
+      <div class="game-arrow">›</div>
+    </a>
+  </div>
+
+  <div class="section-title">📚 Topic Games</div>
+  <div class="games">
+    <a class="game-btn general" href="mbob.html">
+      <div class="game-icon">🐾</div>
+      <div class="game-info">
+        <div class="game-name">Mbob Builder</div>
+        <div class="game-desc">General maths · The original game</div>
+      </div>
+      <div class="game-arrow">›</div>
+    </a>
+    <a class="game-btn funfacts" href="mbob_superfunfacts.html">
+      <div class="game-icon">🌟</div>
+      <div class="game-info">
+        <div class="game-name">Mbob Super Fun Facts</div>
+        <div class="game-desc">Addition · Subtraction · Multiplication · Division</div>
+      </div>
+      <div class="game-arrow">›</div>
+    </a>
+    <a class="game-btn pct" href="mbob_pct.html">
+      <div class="game-icon">🧮</div>
+      <div class="game-info">
+        <div class="game-name">Mbob%</div>
+        <div class="game-desc">Fractions &amp; percentages</div>
+      </div>
+      <div class="game-arrow">›</div>
+    </a>
+    <a class="game-btn dist" href="mbob_dist.html">
+      <div class="game-icon">📏</div>
+      <div class="game-info">
+        <div class="game-name">Mbob Distances</div>
+        <div class="game-desc">mm · cm · dm · m · km</div>
+      </div>
+      <div class="game-arrow">›</div>
+    </a>
+    <a class="game-btn shapes" href="mbob_shapes.html">
+      <div class="game-icon">🔷</div>
+      <div class="game-info">
+        <div class="game-name">Mbob Shapes</div>
+        <div class="game-desc">Vertices · Edges · Faces · Geometry</div>
+      </div>
+      <div class="game-arrow">›</div>
+    </a>
+  </div>
+
+  <div class="footer">Tap any game to start building your Mbob!</div>
+</div>
+</body>
+</html>
