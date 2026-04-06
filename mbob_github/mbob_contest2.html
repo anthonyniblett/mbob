@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mbob Contest II — 4th Grade 1996-2001</title>
+<style>
+
+:root {
+  --bg:#061510; --card:#0a2018; --accent:#22ddaa; --accent2:#88ffdd;
+  --gold:#ffe066; --text:#e8f4ff; --muted:#5580aa;
+  --danger:#ff4466; --good:#44ffaa; --rad:18px;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ min-height:100vh; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; background:var(--bg); color:var(--text);
+  background-image:radial-gradient(ellipse at 10% 10%,rgba(10,40,90,0.8) 0%,transparent 55%),
+    radial-gradient(ellipse at 90% 90%,rgba(5,25,60,0.7) 0%,transparent 55%); }
+body::before{ content:''; position:fixed; inset:0; pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 8% 15%,rgba(100,200,255,0.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 22% 44%,rgba(100,200,255,0.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 63% 9%,rgba(150,220,255,0.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 78% 57%,rgba(100,200,255,0.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 92% 22%,rgba(150,220,255,0.35) 0%,transparent 100%),
+    radial-gradient(1px 1px at 41% 80%,rgba(100,200,255,0.22) 0%,transparent 100%),
+    radial-gradient(1px 1px at 55% 35%,rgba(255,220,100,0.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 15% 73%,rgba(150,220,255,0.3) 0%,transparent 100%); }
+
+.game-wrap{ position:relative; z-index:1; max-width:740px; margin:0 auto; padding:28px 22px 50px; min-height:100vh; }
+.screen{ display:none; } .screen.active{ display:block; }
+
+.logo{ font-weight:800; font-size:2.8rem; text-align:center;
+  background:linear-gradient(135deg,#44aaff,#88ddff,#ffee88,#44aaff);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  letter-spacing:2px; filter:drop-shadow(0 0 22px rgba(34,221,170,0.5)); }
+.subtitle{ text-align:center; color:var(--accent2); font-size:0.78rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; margin-top:2px; }
+.tagline{ text-align:center; color:var(--muted); font-size:0.84rem; margin:4px 0 22px; }
+
+.prog-wrap{ background:rgba(255,255,255,0.06); border-radius:999px; height:9px; margin-bottom:5px; overflow:hidden; border:1px solid rgba(68,170,255,0.2); }
+.prog-fill{ height:100%; border-radius:999px; background:linear-gradient(90deg,var(--accent),var(--accent2)); transition:width 0.5s cubic-bezier(0.4,0,0.2,1); box-shadow:0 0 12px rgba(34,221,170,0.55); }
+.prog-label{ font-size:0.72rem; color:var(--muted); text-align:right; margin-bottom:14px; }
+.lives-row{ display:flex; gap:6px; align-items:center; margin-bottom:12px; }
+.heart{ font-size:1.3rem; transition:transform 0.3s,filter 0.3s; }
+.heart.lost{ filter:grayscale(1); opacity:0.25; transform:scale(0.75); }
+.lives-label{ font-size:0.72rem; color:var(--muted); margin-left:4px; }
+
+/* HUGE Mbob stage */
+.mbob-stage{
+  background:rgba(255,255,255,0.02); border:1px solid rgba(68,170,255,0.12);
+  border-radius:var(--rad); padding:16px 16px 10px; margin-bottom:16px;
+  display:flex; flex-direction:column; align-items:center;
+  box-shadow:0 8px 48px rgba(0,20,60,0.5), inset 0 1px 0 rgba(68,170,255,0.08);
+}
+.mbob-stage-title{ font-size:0.65rem; text-transform:uppercase; letter-spacing:3px; color:var(--muted); margin-bottom:8px; }
+#mbob-canvas{ display:block; border-radius:12px; max-width:100%; }
+.traits-row{ display:flex; flex-wrap:wrap; gap:4px; margin-top:10px; justify-content:center; }
+.trait-chip{ background:rgba(255,255,255,0.04); border:1px solid rgba(68,170,255,0.12); border-radius:999px; padding:2px 9px; font-size:0.62rem; color:var(--muted); }
+.trait-chip.unlocked{ background:rgba(68,170,255,0.12); border-color:rgba(68,170,255,0.45); color:var(--accent2); }
+
+.q-card{ background:var(--card); border-radius:var(--rad); padding:20px; margin-bottom:14px; border:1px solid rgba(68,170,255,0.1); box-shadow:0 4px 28px rgba(0,20,60,0.35); }
+.step-badge{ font-size:0.65rem; text-transform:uppercase; letter-spacing:2px; color:var(--gold); margin-bottom:6px; font-weight:700; }
+.q-text{ font-size:1.05rem; font-weight:700; line-height:1.5; margin-bottom:14px; }
+
+/* 5 answer options - stacked */
+.opts{ display:flex; flex-direction:column; gap:7px; }
+.opt-btn{ background:rgba(255,255,255,0.04); border:1.5px solid rgba(68,170,255,0.15); border-radius:13px; padding:12px 14px; color:var(--text); font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-size:0.88rem; font-weight:700; cursor:pointer; text-align:left; transition:background 0.15s,border-color 0.15s,transform 0.12s; }
+.opt-btn:hover{ background:rgba(68,170,255,0.14); border-color:var(--accent); transform:scale(1.02); box-shadow:0 2px 12px rgba(68,170,255,0.2); }
+.opt-btn.correct{ background:rgba(68,255,170,0.15); border-color:var(--good); color:var(--good); }
+.opt-btn.wrong{ background:rgba(255,68,102,0.15); border-color:var(--danger); color:var(--danger); }
+.opt-btn:disabled{ cursor:not-allowed; }
+
+.feedback{ border-radius:12px; padding:10px 14px; font-size:0.84rem; font-weight:700; margin-top:10px; display:none; line-height:1.4; }
+.feedback.show{ display:block; }
+.feedback.bad{ background:rgba(255,68,102,0.12); border:1px solid rgba(255,68,102,0.4); color:#ff9aaa; }
+.feedback.good{ background:rgba(68,255,170,0.12); border:1px solid rgba(68,255,170,0.4); color:var(--good); }
+
+/* Trait picker — 3 BIG visual options */
+.trait-picker{ background:var(--card); border-radius:var(--rad); padding:20px; margin-bottom:14px; border:1px solid rgba(68,170,255,0.25); display:none; }
+.trait-picker.show{ display:block; }
+.tp-sub{ font-size:0.65rem; text-transform:uppercase; letter-spacing:2px; color:var(--accent2); margin-bottom:7px; font-weight:700; }
+.tp-label{ font-size:1.05rem; font-weight:800; color:var(--gold); margin-bottom:12px; }
+.tp-opts{ display:flex; flex-wrap:wrap; gap:9px; }
+.tp-opt{
+  background:rgba(255,255,255,0.05); border:2px solid rgba(68,170,255,0.2);
+  border-radius:14px; padding:12px 18px; flex:1; min-width:120px;
+  font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-size:0.88rem; font-weight:700;
+  color:var(--text); cursor:pointer; text-align:center;
+  transition:background 0.15s,border-color 0.15s,transform 0.12s;
+}
+.tp-opt:hover{ background:rgba(255,224,102,0.16); border-color:var(--gold); transform:translateY(-3px); box-shadow:0 4px 16px rgba(255,224,102,0.2); }
+.tp-opt.selected{ background:rgba(255,224,102,0.22); border-color:var(--gold); color:var(--gold); transform:translateY(-3px); box-shadow:0 4px 16px rgba(255,224,102,0.3); }
+.confirm-btn{ margin-top:14px; background:linear-gradient(135deg,var(--accent),#006644); border:none; border-radius:13px; padding:12px 26px; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-size:0.94rem; font-weight:800; color:white; cursor:pointer; transition:transform 0.15s,box-shadow 0.15s; box-shadow:0 4px 20px rgba(68,170,255,0.4); }
+.confirm-btn:hover{ transform:translateY(-2px); box-shadow:0 6px 28px rgba(68,170,255,0.6); }
+.confirm-btn:disabled{ opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none; }
+
+.big-btn{ display:block; width:100%; background:linear-gradient(135deg,var(--accent),#006644); border:none; border-radius:var(--rad); padding:16px; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-size:1.1rem; font-weight:800; color:white; cursor:pointer; letter-spacing:1px; transition:transform 0.15s,box-shadow 0.15s; box-shadow:0 4px 24px rgba(68,170,255,0.4); margin-top:10px; }
+.big-btn:hover{ transform:translateY(-2px); box-shadow:0 7px 32px rgba(68,170,255,0.6); }
+
+/* START */
+#screen-start{ text-align:center; padding-top:44px; }
+.start-art{ font-size:5.5rem; margin-bottom:10px; display:block; animation:float 3s ease-in-out infinite; }
+@keyframes float{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+.start-desc{ color:var(--muted); font-size:0.92rem; line-height:1.65; max-width:480px; margin:0 auto 24px; }
+.start-desc strong{ color:var(--text); }
+.contest-badge{ display:inline-flex; align-items:center; gap:8px; background:rgba(68,170,255,0.12); border:1px solid rgba(68,170,255,0.3); border-radius:999px; padding:8px 20px; font-size:0.82rem; font-weight:700; color:var(--accent2); margin-bottom:24px; }
+
+/* GAME OVER */
+#screen-gameover{ text-align:center; }
+.go-box{ background:rgba(255,68,102,0.08); border:1px solid rgba(255,68,102,0.25); border-radius:var(--rad); padding:24px; margin-bottom:18px; }
+.go-emoji{ font-size:3.5rem; margin-bottom:10px; }
+.go-title{ font-size:2rem; font-weight:800; color:var(--danger); margin-bottom:8px; letter-spacing:2px; }
+.go-pct{ font-size:3.5rem; font-weight:800; color:var(--gold); margin:6px 0; filter:drop-shadow(0 0 12px rgba(255,224,102,0.4)); }
+.go-msg{ font-size:0.92rem; color:var(--muted); line-height:1.6; }
+.go-msg strong{ color:var(--text); }
+
+/* WIN */
+#screen-win{ text-align:center; }
+.win-box{ background:rgba(68,170,255,0.07); border:1px solid rgba(68,170,255,0.22); border-radius:var(--rad); padding:24px; margin-bottom:18px; }
+.win-emoji{ font-size:3.5rem; margin-bottom:10px; display:block; animation:spin-in 0.8s ease-out; }
+@keyframes spin-in{ 0%{transform:rotate(-20deg) scale(0.5)} 70%{transform:rotate(10deg) scale(1.1)} 100%{transform:rotate(0) scale(1)} }
+.win-title{ font-size:1.9rem; font-weight:800; background:linear-gradient(135deg,var(--gold),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:6px; }
+.win-name{ font-size:1.5rem; font-weight:800; color:var(--accent); margin:8px 0; filter:drop-shadow(0 0 10px rgba(68,170,255,0.5)); }
+
+@keyframes pulse-in{ 0%{transform:scale(0.93);opacity:0} 100%{transform:scale(1);opacity:1} }
+.pulse-in{ animation:pulse-in 0.25s ease forwards; }
+::-webkit-scrollbar{ width:6px; } ::-webkit-scrollbar-track{ background:transparent; } ::-webkit-scrollbar-thumb{ background:#122030; border-radius:3px; }
+
+</style>
+</head>
+<body><script>
+window.onerror = function(msg, src, line, col, err) {
+  var d = document.createElement('div');
+  d.style = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:20px;z-index:9999;font-size:14px;';
+  d.textContent = 'ERROR: ' + msg + ' (line ' + line + ')';
+  document.body.appendChild(d);
+  return true;
+};
+</script>
+
+<div class="game-wrap">
+
+<div id="screen-start" class="screen active">
+  <span class="start-art">🏆</span>
+  <div class="logo">Mbob Contest II</div>
+  <div class="subtitle">4th Grade Maths 1996–2001</div>
+  <div class="tagline">150 real contest questions · Build your Mbob · Five years of challenges!</div>
+  <div class="contest-badge">📐 Math League contests from 1996-97 through 2000-01</div>
+  <p class="start-desc">
+    Answer <strong>20 challenge-level maths questions</strong> drawn from five years of real 4th Grade Math League contests! Each correct answer unlocks a new feature of your very own <strong>Mbob</strong>. Three wrong answers and the game is over. Good luck! 🌟
+  </p>
+  <button class="big-btn" id="btn-start" onclick="startGame()">🏆 Accept the Challenge!</button>
+</div>
+
+<div id="screen-game" class="screen">
+  <div class="logo" style="font-size:1.9rem;margin-bottom:2px;">Mbob Contest II</div>
+  <div class="prog-wrap"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="prog-label" id="prog-label">Question 1 of 20</div>
+  <div class="lives-row">
+    <span class="heart" id="h1">❤️</span>
+    <span class="heart" id="h2">❤️</span>
+    <span class="heart" id="h3">❤️</span>
+    <span class="lives-label">lives remaining</span>
+  </div>
+  <div class="mbob-stage">
+    <div class="mbob-stage-title">Your Mbob So Far</div>
+    <canvas id="mbob-canvas" width="480" height="460"></canvas>
+    <div class="traits-row" id="traits-row"></div>
+  </div>
+  <div class="q-card">
+    <div class="step-badge" id="step-badge">QUESTION 1</div>
+    <div class="q-text" id="q-text">Loading...</div>
+    <div class="opts" id="opts"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+  <div class="trait-picker" id="trait-picker">
+    <div class="tp-sub">🎉 Correct! Now choose your Mbob's…</div>
+    <div class="tp-label" id="tp-label">Body Colour</div>
+    <div class="tp-opts" id="tp-opts"></div>
+    <button class="confirm-btn" id="confirm-btn" onclick="confirmTrait()" disabled>Confirm →</button>
+  </div>
+</div>
+
+<div id="screen-gameover" class="screen">
+  <div class="go-box">
+    <div class="go-emoji">😤</div>
+    <div class="go-title">GAME OVER!</div>
+    <div class="go-pct" id="go-pct">0%</div>
+    <p class="go-msg">Your Mbob is only <strong id="go-pct2">0%</strong> complete.<br>
+    Your Mbob is <strong>NOT</strong> impressed. You have to start again!</p>
+  </div>
+  <canvas id="go-canvas" width="320" height="300" style="display:block;margin:0 auto 18px;"></canvas>
+  <button class="big-btn" id="btn-retry" onclick="startGame()">🔄 Try Again!</button>
+</div>
+
+<div id="screen-win" class="screen">
+  <div class="win-box">
+    <span class="win-emoji">🏆</span>
+    <div class="win-title">CHALLENGE COMPLETE!</div>
+    <div class="win-name" id="win-name">Captain Blorpington</div>
+    <p style="color:var(--muted);font-size:0.9rem;margin-top:6px;">A true maths champion Mbob! 🎉</p>
+  </div>
+  <canvas id="win-canvas" width="520" height="490" style="display:block;margin:0 auto 16px;max-width:100%;"></canvas>
+  <div id="win-traits" style="margin-bottom:16px;"></div>
+  <button class="big-btn" id="btn-another" onclick="startGame()">🔄 Try Another Challenge!</button>
+</div>
+
+</div>
+<script>
+const QUESTIONS = [
+  // ── 1996-97 CONTEST ──────────────────────────────────────────
+  { q: "(2 + 8) + 10 = 2 × ?", opts: ["8","10","12","18"], answer: "10" },
+  { q: "Of the following, the largest sum is?", opts: ["1110+9990","1101+9909","1011+9099","1111+9999"], answer: "1111+9999" },
+  { q: "What number is 10 more than the greatest whole number less than 100?", opts: ["99","100","109","110"], answer: "109" },
+  { q: "The sum 50+50+50 is equal to each of the following EXCEPT?", opts: ["75+75","35+35+35+35","30+30+30+30+30","25+25+25+25+25+25"], answer: "35+35+35+35" },
+  { q: "If I have 3 more than 3 dozen eggs, how many eggs do I have?", opts: ["24","27","36","39"], answer: "39" },
+  { q: "444 + 444 + 444 = (3×400) + (3×?)", opts: ["38","40","42","44"], answer: "44" },
+  { q: "I had exactly 18 lollipops. If I gave away 4, lost 2, and ate 5, how many would I have left?", opts: ["7","9","11","18"], answer: "7" },
+  { q: "If today is a Tuesday, 10 days from now is a?", opts: ["Friday","Saturday","Sunday","Monday"], answer: "Friday" },
+  { q: "The largest whole number less than 100 that is a multiple of 8 is?", opts: ["88","96","98","104"], answer: "96" },
+  { q: "There are ? 2-digit whole numbers less than 50.", opts: ["50","49","40","39"], answer: "40" },
+  { q: "All of the following pairs of numbers have even sums EXCEPT?", opts: ["676 and 989","687 and 989","766 and 898","898 and 988"], answer: "676 and 989" },
+  { q: "A pizza is cut into 8 slices. If each slice is cut into 3 pieces, how many pieces altogether?", opts: ["11","16","24","38"], answer: "24" },
+  { q: "If 100 cm = 1 m, then 12 m = ?", opts: ["12 cm","120 cm","1200 cm","12000 cm"], answer: "1200 cm" },
+  { q: "My 5 quarters are worth as much as ? dimes + 1 nickel.", opts: ["6","10","12","13"], answer: "12" },
+  { q: "Each seat on my school bus holds 2 students. If my bus has 18 seats, at most ? students can sit.", opts: ["9","16","20","36"], answer: "36" },
+  { q: "In ? years, I will be 6 years older than I was 2 years ago.", opts: ["4","6","8","12"], answer: "4" },
+  { q: "Every whole number is divisible by?", opts: ["3","2","1","0"], answer: "1" },
+  { q: "The difference between an even and an odd number must be?", opts: ["prime","1","even","odd"], answer: "odd" },
+  { q: "Double a whole number, then subtract 2. The result is always divisible by?", opts: ["2","3","4","5"], answer: "2" },
+  { q: "In which pair is the number of sides in the first figure one more than in the second?", opts: ["square and triangle","square and rectangle","triangle and square","rectangle and square"], answer: "square and triangle" },
+  { q: "Ali's 10th birthday will be in 1998. Her 15th birthday will be in?", opts: ["2002","2003","2012","2013"], answer: "2003" },
+  { q: "You spent $6.25 on lunch and I spent 50¢ less. How much did I spend?", opts: ["$1.25","$5.75","$5.85","$6.75"], answer: "$5.75" },
+  { q: "I have two coins. If one is worth twice the other, the two coins might be worth ? together.", opts: ["6¢","15¢","30¢","35¢"], answer: "15¢" },
+  { q: "In HiWay City, even-numbered routes run East and West. How many of Route 66, Route 70, Route 89, Route 98 can I travel East?", opts: ["1","2","3","4"], answer: "3" },
+  { q: "An artist painted 1 happy face yesterday. He paints twice as many each day as the day before. How many will he paint 4 days from now?", opts: ["4","8","16","32"], answer: "32" },
+  { q: "Three different whole numbers are chosen: one from {6,7,8}, one from {2,5,8}, and one from {4,6,8}. What is the greatest sum they could have?", opts: ["24","21","20","19"], answer: "21" },
+  { q: "The hundreds digit of the product 999 999 999 × 888 888 888 is?", opts: ["1","2","4","9"], answer: "1" },
+  { q: "A square whose side is 12 cm long can be cut into at most ? squares whose sides are each 4 cm long.", opts: ["3","6","9","12"], answer: "9" },
+  { q: "Last year, the groundhog saw its shadow 6 times for every 5 times it sees its shadow this year. This year it saw its shadow 120 times. How many times did it see its shadow last year?", opts: ["100","144","220","264"], answer: "144" },
+  { q: "(2000+1999+…+1001+1000) − (1000+999+…+2+1) = 1000 × ?", opts: ["999","1000","1001","1002"], answer: "1001" },
+
+  // ── 1997-98 CONTEST ──────────────────────────────────────────
+  { q: "What is the sum of 500 ones?", opts: ["1","500","501","5000"], answer: "500" },
+  { q: "10 hours = ? minutes", opts: ["6","60","70","600"], answer: "600" },
+  { q: "19 + 98 = 20 + ?", opts: ["78","97","99","1978"], answer: "97" },
+  { q: "When I multiply ? by itself, the result is 256.", opts: ["16","32","64","128"], answer: "16" },
+  { q: "The number two thousand one is a ?-digit number.", opts: ["2","3","4","5"], answer: "4" },
+  { q: "A group of 24 people can be split into ? groups of 3 people each.", opts: ["4","6","8","12"], answer: "8" },
+  { q: "30 ones has the same value as ? tens.", opts: ["3","10","30","300"], answer: "3" },
+  { q: "(12 ÷ 4) × 3 = ?", opts: ["1","3","6","9"], answer: "9" },
+  { q: "(10×1) + (10×10) + (10×100) = ?", opts: ["111","1100","1110","1111"], answer: "1110" },
+  { q: "If Gramps has 12 pairs of red socks, he has ? red socks.", opts: ["6","12","14","24"], answer: "24" },
+  { q: "The number of coins in $1.25 worth of nickels is ? more than the number of coins in $1.25 worth of quarters.", opts: ["20","21","25","30"], answer: "20" },
+  { q: "Which of the following is an even number AND a factor of 18?", opts: ["9","6","4","3"], answer: "6" },
+  { q: "The word groundbreaking has ? vowels.", opts: ["2","3","4","5"], answer: "5" },
+  { q: "(2×1) + (2×3) + (2×5) = ?", opts: ["2×8","2×9","6×9","2+9"], answer: "2×9" },
+  { q: "7000 cm = ? m", opts: ["7","70","700","7000"], answer: "70" },
+  { q: "How much greater is 5555 than 1234?", opts: ["4021","4123","4231","4321"], answer: "4321" },
+  { q: "Since I'm next to last of 8 people holding a hot dog, ? people are ahead of me.", opts: ["4","5","6","7"], answer: "6" },
+  { q: "How many days in a week have names with more than 6 letters?", opts: ["6","5","4","3"], answer: "4" },
+  { q: "If I double ? and divide the result by 4, the quotient is 16.", opts: ["2","32","64","128"], answer: "32" },
+  { q: "I misspelled 5 words on a quiz and spelled 5 times as many correctly. How many words were on the quiz altogether?", opts: ["5","10","25","30"], answer: "30" },
+  { q: "A jigsaw puzzle has 500 pieces, of which 85 are edge pieces. How many pieces are NOT edge pieces?", opts: ["315","415","425","585"], answer: "415" },
+  { q: "(3×333) + (3×333) = 3 × ?", opts: ["111","333","666","999"], answer: "666" },
+  { q: "When divided by 5, the number ? leaves a remainder of 3.", opts: ["1998","1999","2001","2002"], answer: "1998" },
+  { q: "Tim turned 10 years old exactly two months ago. Tim will turn 12 years old in ? months.", opts: ["20","22","24","26"], answer: "22" },
+  { q: "Every number divisible by 8 must be divisible by all the following numbers EXCEPT?", opts: ["6","4","2","1"], answer: "6" },
+  { q: "Divide 891 by 3. The quotient can be divided evenly by?", opts: ["7","17","27","97"], answer: "27" },
+  { q: "Pat's pot-bellied pig eats 3 pans of pig food a day at 75¢ per pan. How much does 1 week's worth of pig food cost?", opts: ["$15.75","$5.25","$2.25","$21"], answer: "$15.75" },
+  { q: "The fewest number of 2s you need to multiply together to get a product greater than 1000 is?", opts: ["4","9","10","501"], answer: "10" },
+  { q: "I read 1 page on March 1, 2 pages on March 2, and so on. How many pages did I read altogether in March?", opts: ["30","31","465","496"], answer: "496" },
+  { q: "To form the number 13471897, each digit is the ones digit of the sum of the two before it, starting with 1 and 3. A 25-digit number is formed the same way starting with 1 and 5. The ones digit of this number is?", opts: ["1","5","7","9"], answer: "7" },
+
+  // ── 1998-99 CONTEST ──────────────────────────────────────────
+  { q: "1 × 1 ÷ 1 × 1 ÷ 1 × 1 ÷ 1 × 1 ÷ 1 × 1 = ?", opts: ["0","1","9","10"], answer: "1" },
+  { q: "When five of us eat, we each need a fork, a spoon, and a knife. The total number of forks plus spoons plus knives we need is?", opts: ["5","8","10","15"], answer: "15" },
+  { q: "(1 × 2 × 3 × 4 × 5) ÷ 6 = ?", opts: ["6","20","36","720"], answer: "20" },
+  { q: "Last month my parrot ate 16 oranges, 12 bananas, and 22 apples. How many pieces of fruit was that?", opts: ["40","46","48","50"], answer: "50" },
+  { q: "The sum of the hundreds digit and the ones digit of 1999 is?", opts: ["10","18","28","81"], answer: "18" },
+  { q: "Each of the following is a whole number EXCEPT?", opts: ["3÷2","3−2","3×2","3+2"], answer: "3÷2" },
+  { q: "When spelled, how many months have e as their second letter?", opts: ["1","2","3","4"], answer: "3" },
+  { q: "After I ate four of my two dozen donuts, I had ? donuts left.", opts: ["8","16","20","28"], answer: "20" },
+  { q: "32 ÷ 4 = 64 ÷ ?", opts: ["2","6","8","16"], answer: "8" },
+  { q: "Michael Jordan's first uniform number was 23. His second was 45. The sum of his two uniform numbers is?", opts: ["22","68","72","1035"], answer: "68" },
+  { q: "8 × 6 × 4 × 2 × 0 = ?", opts: ["0","1","20","384"], answer: "0" },
+  { q: "What is the correct time exactly 61 minutes after 2:00 PM?", opts: ["2:59 PM","2:61 PM","3:01 PM","3:31 PM"], answer: "3:01 PM" },
+  { q: "The number of consonants in the word consonant plus the number of vowels in the word vowel equals?", opts: ["3","8","9","11"], answer: "8" },
+  { q: "My dad found a piggy bank with 7 pennies. All other coins were nickels. The value of all the coins could NOT have been?", opts: ["$66.66","$67.67","$77.77","$222.22"], answer: "$66.66" },
+  { q: "2+3+4+5+6 = 2×3×4×5×6 ÷ ?", opts: ["12","24","36","60"], answer: "36" },
+  { q: "What number is 22 more than the number that is 33 less than 44?", opts: ["99","55","33","11"], answer: "33" },
+  { q: "Each of the following products is an even number EXCEPT?", opts: ["11×99","44×33","55×22","88×66"], answer: "11×99" },
+  { q: "If baseball cards cost fifty cents per pack, how many packs can you buy for five dollars?", opts: ["5","10","20","50"], answer: "10" },
+  { q: "The referee is 25 years older than my brother, who is twice my age. If I am 9, how old is the referee?", opts: ["43","48","50","59"], answer: "43" },
+  { q: "7+7+7+7+7+7+7+7 = 7 × ?", opts: ["7","8","49","56"], answer: "8" },
+  { q: "To compute the square of a number, just multiply the number by itself. What is the square of 11?", opts: ["22","110","111","121"], answer: "121" },
+  { q: "1+2+3+4+5+6+7+8 = 11+22+33+44+55+66+77+88 − ?", opts: ["10","80","180","360"], answer: "360" },
+  { q: "What is the sum of the digits in the number one million?", opts: ["one","one hundred","one thousand","one million"], answer: "one" },
+  { q: "Alex, born last year, is exactly 4 years younger than Lee. Alex is ? days younger than Lee.", opts: ["365","1460","1461","1464"], answer: "1461" },
+  { q: "For a class party, we ordered four square pizzas and one pentagon pizza. Added together, the total number of sides that all these pizzas had was?", opts: ["17","18","20","21"], answer: "21" },
+  { q: "Seven years from now, I will be twice as old as I was one year ago. How old am I now?", opts: ["9","8","7","6"], answer: "9" },
+  { q: "If 6 divides evenly into both my age and my grandmother's age, then the sum of our ages could be?", opts: ["52","54","56","58"], answer: "54" },
+  { q: "Which one is NOT a side of rectangle ABCD?", opts: ["BD","AD","CD","AB"], answer: "BD" },
+  { q: "At the canned food drive, my class brought 5 cans for every 3 your class brought. If your class brought 60 cans, my class brought ? cans.", opts: ["36","65","75","100"], answer: "100" },
+  { q: "Of the whole numbers from 1 through 100, how many are 5 less than another whole number from 1 through 95?", opts: ["20","90","95","100"], answer: "90" },
+
+  // ── 1999-2000 CONTEST ─────────────────────────────────────────
+  { q: "What number is 2 more than 999 + 999?", opts: ["1001","1998","2000","2002"], answer: "2000" },
+  { q: "I ate 2 more than 2 dozen mints. How many mints did I eat?", opts: ["14","22","26","48"], answer: "26" },
+  { q: "Every day, my elephant begs for 3 bags of peanuts. For how many bags does it beg each week?", opts: ["3","7","10","21"], answer: "21" },
+  { q: "50 + 100 + 150 = ? × 50", opts: ["2","3","4","6"], answer: "6" },
+  { q: "In which of the following numbers is the hundreds digit greater than the tens digit?", opts: ["9764","8459","1234","1000"], answer: "9764" },
+  { q: "Which of the following sums is NOT equal to the other three?", opts: ["19+91","18+81","27+72","36+63"], answer: "19+91" },
+  { q: "The number ? reads the same forwards and backwards.", opts: ["98766789","45545454","12343214","10535301"], answer: "98766789" },
+  { q: "Multiply the number of sides in a triangle by the number of sides in a square. The number ? is NOT a factor of this product.", opts: ["3","4","5","6"], answer: "5" },
+  { q: "I ate one frozen yogurt bar for every 3 ice cream bars. If I ate 12 ice cream bars, how many frozen yogurt bars did I eat?", opts: ["4","9","15","36"], answer: "4" },
+  { q: "21 + 21 + 21 = 31 + 31 + 31 − ?", opts: ["10","11","21","30"], answer: "30" },
+  { q: "11+22+33+44 = 1+2+3+4+?", opts: ["10","40","100","110"], answer: "100" },
+  { q: "When 106 is divided by 3, the remainder is?", opts: ["0","1","2","3"], answer: "1" },
+  { q: "Of the following, which is NOT equal to 5×4×3×2?", opts: ["15×8","8×15","10×12","20×6"], answer: "15×8" },
+  { q: "What is the smallest whole number greater than 0 that is divisible by both 8 and 36?", opts: ["4","36","72","288"], answer: "72" },
+  { q: "My school has 5 sets of twins. How many of the students at my school are twins?", opts: ["5","10","15","20"], answer: "10" },
+  { q: "My initials are the 1st, 12th, and 20th letters of the alphabet, in that order. My name could be?", opts: ["Alex Louis Thomas","Amy Lara Sanchez","Anna Maria Trunk","Albert Kevin Upton"], answer: "Alex Louis Thomas" },
+  { q: "Of the 50 whole numbers from 1 to 50, only ? are divisible by 2.", opts: ["23","24","25","26"], answer: "25" },
+  { q: "12 tens + 12 ones = 1 hundred + ? ones.", opts: ["12","21","22","32"], answer: "32" },
+  { q: "The length of one side of a square is 3. The sum of the lengths of the other three sides is?", opts: ["3","6","9","12"], answer: "9" },
+  { q: "Today's Chef's Specials were served on 8 red, 6 green, 5 white, and 4 blue plates. How many were NOT served on blue plates?", opts: ["4","18","19","23"], answer: "19" },
+  { q: "The total value of 8 nickels and 7 dimes equals the total value of ? quarters and 7 nickels.", opts: ["2","3","6","8"], answer: "3" },
+  { q: "? numbers between 1 and 41 are equal to 5 times an even number.", opts: ["two","four","eight","twenty"], answer: "four" },
+  { q: "A diameter of a circle is twice as long as a side of a square. If a radius of the circle is 2, how long is a side of the square?", opts: ["1","2","4","8"], answer: "2" },
+  { q: "When the store security guard retires in the year 2001 A.D., we will be living in the ? century.", opts: ["19th","20th","21st","200th"], answer: "21st" },
+  { q: "When each of the following is divided by 3, the greatest remainder is left by?", opts: ["173","217","364","420"], answer: "173" },
+  { q: "Add any two odd numbers. The ones digit of the sum is always?", opts: ["2","prime","odd","even"], answer: "even" },
+  { q: "Altogether, 12 triangles have as many sides as ? rectangles.", opts: ["4","8","9","16"], answer: "9" },
+  { q: "My pennies are worth as much as my nickels, my nickels are worth as much as my dimes, and my dimes are worth as much as my quarters. If the value of all these coins is $8, how many nickels do I have?", opts: ["200","40","20","8"], answer: "40" },
+  { q: "My dog walked 10 times as far as Frank's dog, and Frank's dog walked 10 times as far as Al's dog. If Frank's dog walked 10 km, then my dog walked ? km farther than Al's dog.", opts: ["9","90","99","109"], answer: "99" },
+  { q: "Four straight lines can cross in as many as six points. What is the greatest number of points in which five straight lines can cross?", opts: ["9","10","12","20"], answer: "10" },
+
+  // ── 2000-2001 CONTEST ─────────────────────────────────────────
+  { q: "20 × 10 × 2 × 1 = ?", opts: ["212","221","400","420"], answer: "400" },
+  { q: "What is 1 more than 20 more than 300?", opts: ["32","51","312","321"], answer: "321" },
+  { q: "9+1 + 8+2 + 7+3 = 6+?", opts: ["4","24","30","36"], answer: "24" },
+  { q: "Ten quarters is worth as much as ? dimes.", opts: ["5","10","15","25"], answer: "25" },
+  { q: "A period of ? weeks is exactly 56 days long.", opts: ["6","7","8","9"], answer: "8" },
+  { q: "How many of the letters in the word mathematics are vowels?", opts: ["11","7","4","3"], answer: "4" },
+  { q: "Which number is twenty thousand, one hundred one?", opts: ["2101","20101","21101","201001"], answer: "20101" },
+  { q: "3 hours = 2 hours + 10 minutes + ? minutes", opts: ["30","50","60","90"], answer: "50" },
+  { q: "The number that's 10 less than 2001 is 10 more than?", opts: ["1981","1991","2001","2011"], answer: "1981" },
+  { q: "At the picnic, Sue swallowed 1 of every 6 seeds in her slice of watermelon. Sue must have swallowed ? of the 162 seeds in her slice.", opts: ["27","28","52","156"], answer: "27" },
+  { q: "101 × 10 × 1 × 0 × 1 × 10 × 101 = 1010 × ?", opts: ["0","1","2","3"], answer: "0" },
+  { q: "21 × 21 = 7 × 7 × ?", opts: ["3","7","9","21"], answer: "9" },
+  { q: "A triple is a group of 3, so 1 dozen pairs equals ? triples.", opts: ["6","8","12","36"], answer: "8" },
+  { q: "The sum of the lengths of all sides of a square equals the length of 1 side multiplied by?", opts: ["2","3","4","8"], answer: "4" },
+  { q: "It took FedStork 11 weeks + 11 days to deliver the medical bag. How many hours was that?", opts: ["22","88","121","2112"], answer: "2112" },
+  { q: "If 2 rocks are worth 5 stones, then ? stones are worth 10 rocks.", opts: ["2","4","25","50"], answer: "25" },
+  { q: "By how many 8s does 32+32+32+32 exceed 24+24+24+24?", opts: ["4","8","24","32"], answer: "4" },
+  { q: "(# sides in a rectangle) − (# sides in a square) = (# sides in a triangle) − ?", opts: ["0","1","2","3"], answer: "3" },
+  { q: "145 + 146 + 147 + 148 + 149 = 5 × ?", opts: ["146","147","148","149"], answer: "147" },
+  { q: "Of the 101 times I squirted Dad with a hose, the number of times I missed is 31 more than the number of times I got him wet. How many squirts missed Dad?", opts: ["35","49","66","70"], answer: "66" },
+  { q: "Of the following sums, which is NOT divisible by 3+3+3?", opts: ["33+33","6+6+6+6+6+6","9+9+9+9+9","18+18"], answer: "33+33" },
+  { q: "What is the sum of the remainders of 1234 ÷ 5 and 6789 ÷ 10?", opts: ["4","5","9","13"], answer: "13" },
+  { q: "The product of a whole number and itself must be divisible by?", opts: ["1 but not necessarily 2","2 but not necessarily 1","1 and 2 but not necessarily 3","1, 2, and 3"], answer: "1 but not necessarily 2" },
+  { q: "(sum of all digits in 2000) × (sum of all digits in 2001) = ?", opts: ["0","2","3","6"], answer: "6" },
+  { q: "A dinosaur grows 2 m each week. A dragon grows 1 m each day. In 4 weeks, how much more does a dragon grow than a dinosaur?", opts: ["4","8","12","20"], answer: "20" },
+  { q: "The sum of the lengths of 4 diameters of a circle is 128. How long is a radius of this circle?", opts: ["4","8","16","32"], answer: "16" },
+  { q: "If they may touch but not overlap, at most how many squares of area 4 can fit inside a rectangle with width 6 and length 14?", opts: ["14","21","28","49"], answer: "21" },
+  { q: "An acronym is a word formed from the first letters of each word in a group. For how many of the following could MATH be an acronym? I. Multiply All Those Hundreds  II. MArtians Take Hostages  III. MATthew Hides  IV. Minutes After The Hour", opts: ["one","two","three","four"], answer: "four" },
+  { q: "Each of the 5 target stripes on my shirt is worth a different odd whole number less than 50. What is the greatest possible sum of these 5 numbers?", opts: ["220","225","235","245"], answer: "225" },
+  { q: "2001 + (2000 − 1999 + 1998 − 1997 + 1996 − … + 2 − 1) = ?", opts: ["2001","3001","4001","4002"], answer: "3001" },
+];
+
+// ── TRAIT DEFINITIONS: 19 traits, exactly 3 options each ──────
+const TRAITS = [
+  { key:"color",    label:"Body Colour",
+    opts:["Snow White","Bubblegum Pink","Sunny Yellow","Lime Green","Sky Blue","Lavender","Tangerine Orange","Coral Red","Mint","Silver","Hot Purple","Turquoise","Peach","Chocolate Brown","Midnight Black","Cobalt Blue","Rose Gold","Forest Green","Lemon Cream","Steel Blue","Flamingo","Lilac","Burnt Orange"] },
+  { key:"bodySize", label:"Body Size",
+    opts:["Small & Petite","Normal Fluffy","Absolutely Enormous"] },
+  { key:"eyeSize",  label:"Eye Size",
+    opts:["Tiny Beady Eyes","Normal Eyes","Massive Googly Eyes"] },
+  { key:"eyeColor", label:"Eye Colour",
+    opts:["Jet Black","Bright Blue","Emerald Green","Amber Gold","Violet Purple","Ruby Red","Ocean Teal","Hot Pink","Silver Grey","Warm Brown","Icy White","Sunset Orange","Deep Navy","Neon Green","Crimson","Turquoise","Pale Gold","Magenta","Hazel","Electric Yellow","Sapphire","Olive","Rose Pink"] },
+  { key:"ears",     label:"Ears",
+    opts:["Tiny Nub Ears","Floppy Bunny Ears","Huge Elephant Ears"] },
+  { key:"nose",     label:"Nose",
+    opts:["Tiny Dot Nose","Round Button Nose","Big Bobbly Clown Nose"] },
+  { key:"mouth",    label:"Mouth",
+    opts:["Tiny Smirk","Big Wide Grin","Giant Toothy Smile"] },
+  { key:"arms",     label:"Arms",
+    opts:["Stubby Little Arms","Normal Fluffy Arms","Super Long Noodle Arms"] },
+  { key:"shoes",    label:"Shoes",
+    opts:["No Shoes","Normal Shoes","Enormous Clown Shoes"] },
+  { key:"hair",     label:"Hair",
+    opts:["No Hair (bald!)","Small Tidy Hair","Giant Wild Hair"] },
+  { key:"hairColor",label:"Hair Colour",
+    opts:["Golden Blonde","Fiery Red","Electric Blue"] },
+  { key:"tail",     label:"Tail",
+    opts:["No Tail","Short Curly Tail","Long Fluffy Fox Tail"] },
+  { key:"hat",      label:"Hat",
+    opts:["No Hat","Small Beret","Huge Top Hat"] },
+  { key:"cheeks",   label:"Cheeks",
+    opts:["Plain Cheeks","Rosy Blush Cheeks","Heart Cheeks"] },
+  { key:"accessory",label:"Accessory",
+    opts:["Nothing Extra","Bow Tie","Big Star Badge"] },
+  { key:"eyebrows", label:"Eyebrows",
+    opts:["No Eyebrows","Normal Brows","Huge Bushy Eyebrows"] },
+  { key:"pattern",  label:"Body Pattern",
+    opts:["Plain","Polka Dots","Bold Stripes"] },
+  { key:"title",    label:"Title",
+    opts:["Captain","Professor","The Magnificent"] },
+  { key:"name",     label:"Name",
+    opts:["Swizzlestick","Blorpington","Quackledorf","Noodlefuzz","Wobblehat","Gigglesnort","Snorkelsnoot","Bumblethwick","Derpsworth","Puffington"] },
+];
+
+const BODY_COLOURS = {
+  "Snow White":"#f8f8f8","Bubblegum Pink":"#ffb3d9","Sunny Yellow":"#ffe033",
+  "Lime Green":"#88ffcc","Sky Blue":"#88ccff","Lavender":"#ccaaff",
+  "Tangerine Orange":"#ffaa44","Coral Red":"#ff6b6b","Mint":"#aaffdd","Silver":"#d0d0e0",
+  "Hot Purple":"#cc66ff","Turquoise":"#33ddcc","Peach":"#ffccaa",
+  "Chocolate Brown":"#aa7744","Midnight Black":"#222233","Cobalt Blue":"#1144cc",
+  "Rose Gold":"#ffbbaa","Forest Green":"#44aa66","Lemon Cream":"#fffaaa",
+  "Steel Blue":"#6699bb","Flamingo":"#ff8899","Lilac":"#ddaaff","Burnt Orange":"#ee7722",
+};
+const EYE_COLOURS = {
+  "Jet Black":"#111","Bright Blue":"#2266ff","Emerald Green":"#228833",
+  "Amber Gold":"#ffaa00","Violet Purple":"#8800cc","Ruby Red":"#cc1111",
+  "Ocean Teal":"#009988","Hot Pink":"#ff44bb","Silver Grey":"#888899","Warm Brown":"#774422",
+  "Icy White":"#ddeeff","Sunset Orange":"#ff6622","Deep Navy":"#001166",
+  "Neon Green":"#44ff00","Crimson":"#990022","Turquoise":"#00ccbb",
+  "Pale Gold":"#ddbb55","Magenta":"#cc0088","Hazel":"#886633",
+  "Electric Yellow":"#ffee00","Sapphire":"#0033aa","Olive":"#667722","Rose Pink":"#ff88aa",
+};
+const HAIR_COLOURS = { "Golden Blonde":"#ffdd55","Fiery Red":"#ff3322","Electric Blue":"#2244ff" };
+
+// ── GAME STATE ─────────────────────────────────────────────────
+let state = { lives:3, qIdx:0, wrongStreak:0, pool:[], mbob:{}, selectedTrait:null, awaitingTrait:false };
+
+function shuffle(arr) {
+  let a=[...arr];
+  for(let pass=0;pass<3;pass++){
+    for(let i=a.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+  }
+  return a;
+}
+
+function startGame() { try {
+  let offset;
+  try {
+    const seedArr=new Uint32Array(1);
+    crypto.getRandomValues(seedArr);
+    offset=seedArr[0]%QUESTIONS.length;
+  } catch(e) {
+    offset=Math.floor(Math.random()*QUESTIONS.length);
+  }
+  const rotated=[...QUESTIONS.slice(offset),...QUESTIONS.slice(0,offset)];
+  state={ lives:3, qIdx:0, wrongStreak:0, pool:shuffle(rotated).slice(0,20),
+          mbob:{}, selectedTrait:null, awaitingTrait:false };
+  showScreen('game');
+  renderQuestion();
+  } catch(e) { alert('startGame error: '+e.message+' | '+e.stack); }
+}
+
+function showScreen(n){
+  try {
+    var screens=document.querySelectorAll('.screen');
+    for(var i=0;i<screens.length;i++) screens[i].classList.remove('active');
+    document.getElementById('screen-'+n).classList.add('active');
+  } catch(e) { alert('showScreen error: '+e.message); }
+}
+
+function renderQuestion() {
+  const q=state.pool[state.qIdx];
+  const trait=TRAITS[state.qIdx];
+  const pct=(state.qIdx/20)*100;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=`Question ${state.qIdx+1} of 20`;
+  document.getElementById('step-badge').textContent=`Q${state.qIdx+1} — Unlock: ${trait.label.toUpperCase()}`;
+  document.getElementById('q-text').textContent=q.q;
+  for(let i=1;i<=3;i++) document.getElementById('h'+i).classList.toggle('lost',i>state.lives);
+
+  const cont=document.getElementById('opts');
+  cont.innerHTML='';
+  // Only 4 options per question — show all
+  shuffle(q.opts).forEach(opt=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn pulse-in';
+    btn.textContent=opt;
+    btn.onclick=function(){handleAnswer(opt,q.answer,btn)};
+    cont.appendChild(btn);
+  });
+
+  const fb=document.getElementById('feedback');
+  fb.className='feedback'; fb.textContent='';
+  document.getElementById('trait-picker').classList.remove('show');
+  state.selectedTrait=null; state.awaitingTrait=false;
+
+  drawMbob('mbob-canvas',480,460);
+  renderChips();
+}
+
+function handleAnswer(chosen,correct,btn){
+  if(state.awaitingTrait) return;
+  document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+  const ok=chosen.trim()===correct.trim();
+  const fb=document.getElementById('feedback');
+  if(ok){
+    btn.classList.add('correct');
+    state.wrongStreak=0;
+    fb.className='feedback good show';
+    fb.textContent=`✅ Correct! Now choose your Mbob's ${TRAITS[state.qIdx].label}!`;
+    setTimeout(showTraitPicker,650);
+  } else {
+    btn.classList.add('wrong');
+    state.wrongStreak++; state.lives--;
+    updateHearts();
+    if(state.lives<=0){ fb.className='feedback bad show'; fb.textContent='❌ Wrong! Game over!'; setTimeout(gameOver,1200); return; }
+    fb.className='feedback bad show';
+    fb.textContent=state.wrongStreak===1
+      ? "No, I'm afraid that's wrong. You have two more chances!"
+      : "Nope. Sorry! One more chance remaining.";
+    setTimeout(()=>{ document.querySelectorAll('.opt-btn').forEach(b=>{ b.disabled=false; b.classList.remove('wrong','correct'); }); },900);
+  }
+}
+
+function updateHearts(){
+  for(let i=1;i<=3;i++) document.getElementById('h'+i).classList.toggle('lost',i>state.lives);
+}
+
+function showTraitPicker(){
+  const trait=TRAITS[state.qIdx];
+  document.getElementById('tp-label').textContent=trait.label;
+  const cont=document.getElementById('tp-opts');
+  cont.innerHTML='';
+  trait.opts.forEach(function(opt){
+    const btn=document.createElement('button');
+    btn.className='tp-opt';
+    btn.textContent=opt;
+    btn.onclick=function(){
+      const all=document.querySelectorAll('.tp-opt');
+      for(let i=0;i<all.length;i++) all[i].classList.remove('selected');
+      btn.classList.add('selected');
+      state.selectedTrait=opt;
+      const cb=document.getElementById('confirm-btn');
+      cb.disabled=false;
+      cb.onclick=confirmTrait;
+    };
+    cont.appendChild(btn);
+  });
+  const cb=document.getElementById('confirm-btn');
+  cb.disabled=true;
+  cb.onclick=confirmTrait;
+  document.getElementById('trait-picker').classList.add('show');
+  state.awaitingTrait=true;
+}
+
+function confirmTrait(){
+  state.mbob[TRAITS[state.qIdx].key]=state.selectedTrait;
+  state.awaitingTrait=false; state.wrongStreak=0; state.qIdx++;
+  if(state.qIdx>=20) winGame(); else renderQuestion();
+}
+
+function renderChips(){
+  const row=document.getElementById('traits-row');
+  row.innerHTML='';
+  TRAITS.forEach(td=>{
+    const v=state.mbob[td.key];
+    const chip=document.createElement('span');
+    chip.className='trait-chip'+(v?' unlocked':'');
+    chip.textContent=v?`${td.label}: ${v}`:td.label;
+    row.appendChild(chip);
+  });
+}
+
+// ── DRAW MBOB ─────────────────────────────────────────────────
+function drawMbob(canvasId,W,H){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas) return;
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  const m=state.mbob;
+  const cx=W/2, cy=H/2+10;
+
+  // Body size affects radius
+  const sizeMap={"Small & Petite":0.22,"Normal Fluffy":0.30,"Absolutely Enormous":0.40};
+  const bodyR=Math.min(W,H)*(sizeMap[m.bodySize]||0.30);
+
+  const bodyCol=BODY_COLOURS[m.color]||'#f8f8f8';
+  const eyeCol=EYE_COLOURS[m.eyeColor]||'#111';
+  const hairCol=HAIR_COLOURS[m.hairColor]||'#ffdd55';
+
+  // TAIL
+  drawTail(ctx,m.tail,cx,cy,bodyR,bodyCol);
+  // SHOES
+  drawShoes(ctx,m.shoes,cx,cy,bodyR);
+  // ARMS
+  drawArms(ctx,m.arms,cx,cy,bodyR,bodyCol);
+  // FLUFFY BODY
+  drawFluffyBody(ctx,cx,cy,bodyR,bodyCol,m.pattern);
+  // EARS
+  drawEars(ctx,m.ears,cx,cy,bodyR,bodyCol);
+  // HAIR
+  drawHair(ctx,m.hair,m.hairColor,hairCol,cx,cy,bodyR);
+  // EYEBROWS
+  drawEyebrows(ctx,m.eyebrows,cx,cy,bodyR);
+  // EYES (size-aware)
+  drawEyes(ctx,m.eyeSize,eyeCol,cx,cy,bodyR);
+  // CHEEKS
+  drawCheeks(ctx,m.cheeks,cx,cy,bodyR);
+  // NOSE
+  drawNose(ctx,m.nose,cx,cy,bodyR);
+  // MOUTH
+  drawMouth(ctx,m.mouth,cx,cy,bodyR);
+  // HAT
+  drawHat(ctx,m.hat,cx,cy,bodyR);
+  // ACCESSORY
+  drawAccessory(ctx,m.accessory,cx,cy,bodyR);
+  // NAME LABEL
+  const title=m.title||''; const name=m.name||'';
+  if(title||name){
+    ctx.save(); ctx.font=`bold ${Math.max(11,bodyR*0.13)}px Poppins,sans-serif`;
+    ctx.fillStyle='#ffe066'; ctx.textAlign='center';
+    ctx.fillText(`${title} ${name}`.trim(),cx,H-8);
+    ctx.restore();
+  }
+}
+
+function drawFluffyBody(ctx,cx,cy,r,col,pattern){
+  const fluff=[
+    [cx-r*.55,cy+r*.35,r*.44],[cx+r*.55,cy+r*.35,r*.44],
+    [cx-r*.65,cy-r*.05,r*.39],[cx+r*.65,cy-r*.05,r*.39],
+    [cx-r*.35,cy-r*.65,r*.37],[cx+r*.35,cy-r*.65,r*.37],
+    [cx,cy+r*.58,r*.39],[cx,cy-r*.68,r*.37],
+  ];
+  fluff.forEach(([fx,fy,fr])=>{
+    ctx.save(); ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=10;
+    ctx.beginPath(); ctx.arc(fx,fy,fr,0,Math.PI*2); ctx.fill(); ctx.restore();
+  });
+  ctx.save(); ctx.fillStyle=col; ctx.shadowColor=col; ctx.shadowBlur=18;
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill();
+  const g=ctx.createRadialGradient(cx-r*.25,cy-r*.25,r*.05,cx,cy,r);
+  g.addColorStop(0,'rgba(255,255,255,0.42)'); g.addColorStop(.5,'rgba(255,255,255,0.08)'); g.addColorStop(1,'rgba(0,0,0,0.06)');
+  ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill(); ctx.restore();
+  if(pattern&&!pattern.includes('Plain')){
+    ctx.save(); ctx.globalAlpha=0.28;
+    if(pattern.includes('Polka')){
+      ctx.fillStyle='rgba(60,20,0,0.7)';
+      [[-r*.3,-r*.2,r*.1],[r*.32,-r*.28,r*.09],[0,r*.22,r*.1],[-r*.38,r*.18,r*.08],[r*.28,r*.28,r*.09]].forEach(([sx,sy,sr])=>{ ctx.beginPath(); ctx.arc(cx+sx,cy+sy,sr,0,Math.PI*2); ctx.fill(); });
+    } else if(pattern.includes('Stripe')){
+      ctx.strokeStyle='rgba(60,20,0,0.5)'; ctx.lineWidth=r*.12;
+      for(let s=-r*.5;s<r*.6;s+=r*.28){ ctx.beginPath(); ctx.moveTo(cx+s-r,cy-r); ctx.lineTo(cx+s+r,cy+r); ctx.stroke(); }
+    }
+    ctx.restore();
+  }
+}
+
+function drawEars(ctx,ears,cx,cy,r,col){
+  if(!ears) return;
+  ctx.save(); ctx.fillStyle=col;
+  if(ears.includes('Tiny')){
+    ctx.beginPath(); ctx.arc(cx-r*.52,cy-r*.72,r*.14,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*.52,cy-r*.72,r*.14,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ffaaaa'; ctx.beginPath(); ctx.arc(cx-r*.52,cy-r*.72,r*.07,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*.52,cy-r*.72,r*.07,0,Math.PI*2); ctx.fill();
+  } else if(ears.includes('Bunny')){
+    ctx.beginPath(); ctx.ellipse(cx-r*.32,cy-r*1.1,r*.13,r*.42,-0.15,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+r*.32,cy-r*1.1,r*.13,r*.42,0.15,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ffaabb';
+    ctx.beginPath(); ctx.ellipse(cx-r*.32,cy-r*1.1,r*.055,r*.27,-0.15,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+r*.32,cy-r*1.1,r*.055,r*.27,0.15,0,Math.PI*2); ctx.fill();
+  } else if(ears.includes('Elephant')){
+    // Huge elephant ears
+    ctx.beginPath(); ctx.ellipse(cx-r*.95,cy,r*.48,r*.62,-0.2,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+r*.95,cy,r*.48,r*.62,0.2,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ffcccc'; ctx.globalAlpha=0.6;
+    ctx.beginPath(); ctx.ellipse(cx-r*.95,cy,r*.30,r*.40,-0.2,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+r*.95,cy,r*.30,r*.40,0.2,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawEyes(ctx,eyeSize,col,cx,cy,r){
+  if(!eyeSize) return;
+  const sMap={"Tiny Beady Eyes":0.055,"Normal Eyes":0.11,"Massive Googly Eyes":0.22};
+  const er=r*(sMap[eyeSize]||0.11);
+  const ex=r*.28, ey=cy-r*.06;
+  [[cx-ex,ey],[cx+ex,ey]].forEach(([ex2,ey2])=>{
+    ctx.save(); ctx.fillStyle='white'; ctx.shadowColor='rgba(0,0,0,0.15)'; ctx.shadowBlur=4;
+    ctx.beginPath(); ctx.ellipse(ex2,ey2,er,er*.9,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.fillStyle=col;
+    ctx.beginPath(); ctx.arc(ex2,ey2+er*.08,er*.55,0,Math.PI*2); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.fillStyle='#111';
+    ctx.beginPath(); ctx.arc(ex2,ey2+er*.08,er*.25,0,Math.PI*2); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.fillStyle='white';
+    ctx.beginPath(); ctx.arc(ex2-er*.2,ey2-er*.18,er*.18,0,Math.PI*2); ctx.fill(); ctx.restore();
+  });
+}
+
+function drawEyebrows(ctx,brows,cx,cy,r){
+  if(!brows||brows.includes('No Eyebrows')) return;
+  ctx.save(); ctx.strokeStyle='#553311'; ctx.lineCap='round';
+  const ey=cy-r*.25, ex=r*.28;
+  const isBig=brows.includes('Huge');
+  ctx.lineWidth=isBig?r*.1:r*.05;
+  if(isBig){
+    ctx.beginPath(); ctx.moveTo(cx-ex-r*.18,ey-r*.04); ctx.lineTo(cx-ex+r*.18,ey+r*.04); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+ex-r*.18,ey+r*.04); ctx.lineTo(cx+ex+r*.18,ey-r*.04); ctx.stroke();
+    // Extra thickness
+    ctx.lineWidth=r*.07;
+    ctx.beginPath(); ctx.moveTo(cx-ex-r*.16,ey+r*.04); ctx.lineTo(cx-ex+r*.16,ey+r*.1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+ex-r*.16,ey+r*.1); ctx.lineTo(cx+ex+r*.16,ey+r*.04); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.moveTo(cx-ex-r*.1,ey); ctx.lineTo(cx-ex+r*.1,ey); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+ex-r*.1,ey); ctx.lineTo(cx+ex+r*.1,ey); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawNose(ctx,nose,cx,cy,r){
+  if(!nose||nose.includes('No')) return;
+  ctx.save();
+  const ny=cy+r*.12;
+  if(nose.includes('Tiny Dot')){
+    ctx.fillStyle='#cc5544'; ctx.beginPath(); ctx.arc(cx,ny,r*.04,0,Math.PI*2); ctx.fill();
+  } else if(nose.includes('Round Button')){
+    ctx.fillStyle='#dd6655'; ctx.beginPath(); ctx.arc(cx,ny,r*.09,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ee8877'; ctx.beginPath(); ctx.arc(cx-r*.03,ny-r*.03,r*.04,0,Math.PI*2); ctx.fill();
+  } else if(nose.includes('Big Bobbly')){
+    ctx.fillStyle='#ff2200'; ctx.beginPath(); ctx.arc(cx,ny,r*.16,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ff6644'; ctx.beginPath(); ctx.arc(cx-r*.04,ny-r*.04,r*.07,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawMouth(ctx,mouth,cx,cy,r){
+  if(!mouth) return;
+  ctx.save(); ctx.strokeStyle='#441122'; ctx.lineCap='round';
+  const my=cy+r*.28;
+  if(mouth.includes('Tiny Smirk')){
+    ctx.lineWidth=r*.04;
+    ctx.beginPath(); ctx.moveTo(cx-r*.08,my); ctx.bezierCurveTo(cx,my-r*.04,cx+r*.1,my+r*.04,cx+r*.14,my-r*.02); ctx.stroke();
+  } else if(mouth.includes('Big Wide Grin')){
+    ctx.lineWidth=r*.055;
+    ctx.beginPath(); ctx.arc(cx,my-r*.06,r*.22,0.15,Math.PI-0.15); ctx.stroke();
+  } else if(mouth.includes('Giant Toothy')){
+    // Draw filled open mouth with teeth
+    ctx.fillStyle='#330011';
+    ctx.beginPath(); ctx.arc(cx,my-r*.05,r*.3,0.1,Math.PI-0.1); ctx.fill();
+    // Teeth
+    ctx.fillStyle='white';
+    const numT=5, tw=r*.44/numT;
+    for(let i=0;i<numT;i++){
+      roundRect(ctx,cx-r*.22+i*tw+1,my-r*.05,tw-2,r*.14,3); ctx.fill();
+    }
+    ctx.strokeStyle='#441122'; ctx.lineWidth=r*.05;
+    ctx.beginPath(); ctx.arc(cx,my-r*.05,r*.3,0.1,Math.PI-0.1); ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawCheeks(ctx,cheeks,cx,cy,r){
+  if(!cheeks||cheeks.includes('Plain')) return;
+  ctx.save();
+  const chy=cy+r*.08, chx=r*.42;
+  if(cheeks.includes('Rosy Blush')){
+    ctx.fillStyle='#ff99bb'; ctx.globalAlpha=0.45;
+    ctx.beginPath(); ctx.ellipse(cx-chx,chy,r*.2,r*.12,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+chx,chy,r*.2,r*.12,0,0,Math.PI*2); ctx.fill();
+  } else if(cheeks.includes('Heart')){
+    ctx.globalAlpha=0.7;
+    drawHeart(ctx,cx-chx,chy-r*.06,r*.1,'#ff3366');
+    drawHeart(ctx,cx+chx,chy-r*.06,r*.1,'#ff3366');
+  }
+  ctx.restore();
+}
+
+function drawArms(ctx,arms,cx,cy,r,col){
+  if(!arms) return;
+  ctx.save(); ctx.fillStyle=col; ctx.strokeStyle=col; ctx.lineCap='round';
+  if(arms.includes('Stubby')){
+    ctx.lineWidth=r*.2;
+    ctx.beginPath(); ctx.moveTo(cx-r*.88,cy); ctx.lineTo(cx-r*.98,cy+r*.12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+r*.88,cy); ctx.lineTo(cx+r*.98,cy+r*.12); ctx.stroke();
+  } else if(arms.includes('Normal')){
+    ctx.lineWidth=r*.18;
+    ctx.beginPath(); ctx.moveTo(cx-r*.92,cy); ctx.lineTo(cx-r*1.1,cy+r*.1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+r*.92,cy); ctx.lineTo(cx+r*1.1,cy+r*.1); ctx.stroke();
+    ctx.fillStyle='#ffccbb';
+    ctx.beginPath(); ctx.arc(cx-r*1.1,cy+r*.1,r*.1,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*1.1,cy+r*.1,r*.1,0,Math.PI*2); ctx.fill();
+  } else if(arms.includes('Super Long Noodle')){
+    ctx.lineWidth=r*.1;
+    ctx.beginPath(); ctx.moveTo(cx-r*.92,cy); ctx.bezierCurveTo(cx-r*1.3,cy-r*.4,cx-r*1.5,cy+r*.3,cx-r*1.35,cy+r*.7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+r*.92,cy); ctx.bezierCurveTo(cx+r*1.3,cy-r*.4,cx+r*1.5,cy+r*.3,cx+r*1.35,cy+r*.7); ctx.stroke();
+    // little hands
+    ctx.fillStyle='#ffccbb';
+    ctx.beginPath(); ctx.arc(cx-r*1.35,cy+r*.7,r*.12,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*1.35,cy+r*.7,r*.12,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawShoes(ctx,shoes,cx,cy,r){
+  if(!shoes||shoes.includes('No Shoes')) return;
+  ctx.save();
+  const sy=cy+r*.86;
+  if(shoes.includes('Normal')){
+    ctx.fillStyle='#2244aa';
+    ctx.beginPath(); ctx.ellipse(cx-r*.32,sy,r*.22,r*.13,0.1,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+r*.32,sy,r*.22,r*.13,-0.1,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ffffff';
+    ctx.beginPath(); ctx.arc(cx-r*.24,sy-r*.04,r*.06,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*.24,sy-r*.04,r*.06,0,Math.PI*2); ctx.fill();
+  } else if(shoes.includes('Enormous Clown')){
+    // HUGE red clown shoes
+    ctx.fillStyle='#ff2200';
+    ctx.beginPath(); ctx.ellipse(cx-r*.42,sy,r*.52,r*.2,-0.05,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+r*.42,sy,r*.52,r*.2,0.05,0,Math.PI*2); ctx.fill();
+    // Pom-pom
+    ctx.fillStyle='#ffee00';
+    ctx.beginPath(); ctx.arc(cx-r*.68,sy-r*.06,r*.1,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*.68,sy-r*.06,r*.1,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawTail(ctx,tail,cx,cy,r,col){
+  if(!tail||tail.includes('No Tail')) return;
+  ctx.save();
+  if(tail.includes('Short Curly')){
+    ctx.strokeStyle=col; ctx.lineWidth=r*.12; ctx.lineCap='round';
+    ctx.beginPath(); ctx.arc(cx+r*.98,cy+r*.28,r*.18,0,Math.PI*1.7); ctx.stroke();
+  } else if(tail.includes('Long Fluffy Fox')){
+    // Long thick fluffy tail
+    ctx.strokeStyle='#ff9966'; ctx.lineWidth=r*.22; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(cx+r*.9,cy+r*.2); ctx.bezierCurveTo(cx+r*1.5,cy,cx+r*1.6,cy-r*.8,cx+r*1.2,cy-r*1.1); ctx.stroke();
+    ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(cx+r*1.2,cy-r*1.1,r*.18,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawHat(ctx,hat,cx,cy,r){
+  if(!hat||hat.includes('No Hat')) return;
+  ctx.save();
+  const htop=cy-r*.88;
+  if(hat.includes('Small Beret')){
+    ctx.fillStyle='#883322';
+    ctx.beginPath(); ctx.ellipse(cx+r*.1,htop-r*.06,r*.4,r*.18,-0.18,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#aa4433'; ctx.beginPath(); ctx.arc(cx+r*.3,htop-r*.12,r*.07,0,Math.PI*2); ctx.fill();
+  } else if(hat.includes('Huge Top Hat')){
+    // Very tall top hat
+    ctx.fillStyle='#1a1a2e'; ctx.strokeStyle='#555'; ctx.lineWidth=2;
+    ctx.fillRect(cx-r*.4,htop-r*.85,r*.8,r*.85); ctx.strokeRect(cx-r*.4,htop-r*.85,r*.8,r*.85);
+    // brim - extra wide
+    ctx.fillRect(cx-r*.65,htop,r*1.3,r*.1); ctx.strokeRect(cx-r*.65,htop,r*1.3,r*.1);
+    // band
+    ctx.fillStyle='#882222'; ctx.fillRect(cx-r*.4,htop-r*.08,r*.8,r*.08);
+  }
+  ctx.restore();
+}
+
+function drawAccessory(ctx,acc,cx,cy,r){
+  if(!acc||acc.includes('Nothing')) return;
+  ctx.save();
+  if(acc.includes('Bow Tie')){
+    const by=cy+r*.42;
+    ctx.fillStyle='#ff3399';
+    ctx.beginPath(); ctx.moveTo(cx-r*.28,by); ctx.lineTo(cx-r*.06,by-r*.1); ctx.lineTo(cx-r*.06,by+r*.1); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx+r*.28,by); ctx.lineTo(cx+r*.06,by-r*.1); ctx.lineTo(cx+r*.06,by+r*.1); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#ff66bb'; ctx.beginPath(); ctx.arc(cx,by,r*.08,0,Math.PI*2); ctx.fill();
+  } else if(acc.includes('Big Star Badge')){
+    ctx.translate(cx+r*.7,cy+r*.2);
+    drawStar(ctx,0,0,r*.1,r*.22,5);
+    ctx.fillStyle='#ffcc00'; ctx.fill();
+    ctx.strokeStyle='#cc9900'; ctx.lineWidth=r*.02; ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawHair(ctx,hair,colorName,col,cx,cy,r){
+  if(!hair||hair.includes('No Hair')||hair.includes('bald')) return;
+  ctx.save();
+  if(hair.includes('Small Tidy')){
+    // Neat small cap of hair
+    ctx.fillStyle=col;
+    ctx.beginPath(); ctx.arc(cx,cy-r*.68,r*.48,Math.PI+0.25,Math.PI*2-0.25); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx-r*.42,cy-r*.42,r*.15,r*.1,-0.3,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+r*.42,cy-r*.42,r*.15,r*.1,0.3,0,Math.PI*2); ctx.fill();
+  } else if(hair.includes('Giant Wild')){
+    // Enormous wild hair shooting out in all directions
+    ctx.fillStyle=col;
+    // Big base
+    ctx.beginPath(); ctx.arc(cx,cy-r*.65,r*.8,Math.PI+0.1,Math.PI*2-0.1); ctx.fill();
+    // Wild spiky bits sticking way out
+    ctx.lineWidth=r*.12; ctx.strokeStyle=col; ctx.lineCap='round';
+    const spikes=[
+      [-r*.7,cy-r*.62,-r*1.2,cy-r*1.1],
+      [-r*.4,cy-r*.8,-r*.6,cy-r*1.3],
+      [0,cy-r*.85,r*.1,cy-r*1.4],
+      [r*.4,cy-r*.8,r*.6,cy-r*1.3],
+      [r*.7,cy-r*.62,r*1.2,cy-r*1.1],
+      [-r*.85,cy-r*.38,-r*1.3,cy-r*.7],
+      [r*.85,cy-r*.38,r*1.3,cy-r*.7],
+    ];
+    spikes.forEach(([x1,y1,x2,y2])=>{
+      ctx.beginPath(); ctx.moveTo(cx+x1,y1); ctx.lineTo(cx+x2,y2); ctx.stroke();
+    });
+  }
+  ctx.restore();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+function drawStar(ctx,cx,cy,inner,outer,pts){
+  ctx.beginPath();
+  for(let i=0;i<pts*2;i++){
+    const R=i%2===0?outer:inner;
+    const a=(i*Math.PI)/pts-Math.PI/2;
+    ctx.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R);
+  }
+  ctx.closePath();
+}
+function drawHeart(ctx,cx,cy,size,col){
+  ctx.fillStyle=col;
+  ctx.beginPath();
+  ctx.moveTo(cx,cy+size*.35);
+  ctx.bezierCurveTo(cx-size,cy-size*.5,cx-size*2,cy+size*.15,cx,cy+size);
+  ctx.bezierCurveTo(cx+size*2,cy+size*.15,cx+size,cy-size*.5,cx,cy+size*.35);
+  ctx.fill();
+}
+function darken(hex){
+  try{ let c=parseInt(hex.replace('#',''),16); return `rgb(${Math.max(0,((c>>16)&0xff)-40)},${Math.max(0,((c>>8)&0xff)-40)},${Math.max(0,(c&0xff)-40)})`; }catch{return '#888';}
+}
+
+// ── GAME OVER / WIN ───────────────────────────────────────────
+function gameOver(){
+  const pct=Math.round((state.qIdx/20)*100);
+  document.getElementById('go-pct').textContent=pct+'%';
+  document.getElementById('go-pct2').textContent=pct+'%';
+  drawMbob('go-canvas',320,300);
+  showScreen('gameover');
+}
+function winGame(){
+  const title=state.mbob.title||'', name=state.mbob.name||'Mbob';
+  document.getElementById('win-name').textContent=`${title} ${name}`.trim();
+  drawMbob('win-canvas',520,490);
+  const wd=document.getElementById('win-traits');
+  wd.innerHTML='';
+  const row=document.createElement('div');
+  row.className='traits-row'; row.style.justifyContent='center';
+  TRAITS.forEach(td=>{ const v=state.mbob[td.key]; if(v){ const chip=document.createElement('span'); chip.className='trait-chip unlocked'; chip.textContent=`${td.label}: ${v}`; row.appendChild(chip); }});
+  wd.appendChild(row);
+  showScreen('win');
+}
+
+// Safari-safe initialisation
+window.startGame=startGame;
+window.confirmTrait=confirmTrait;
+
+function initGame() {
+  var s = document.getElementById('btn-start');
+  var r = document.getElementById('btn-retry');
+  var a = document.getElementById('btn-another');
+  var c = document.getElementById('confirm-btn');
+  if (s) s.onclick = startGame;
+  if (r) r.onclick = startGame;
+  if (a) a.onclick = startGame;
+  if (c) c.onclick = confirmTrait;
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initGame);
+} else {
+  initGame();
+}
+</script>
+</body>
+</html>
