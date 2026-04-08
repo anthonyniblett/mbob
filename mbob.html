@@ -1058,6 +1058,17 @@ function updateHearts() {
 }
 
 // ── TRAIT PICKER ──────────────────────────────────────────────
+
+function selectTrait(opt) {
+  var all = document.querySelectorAll('.tp-opt');
+  for (var i = 0; i < all.length; i++) all[i].classList.remove('selected');
+  state.selectedTrait = opt;
+  for (var i = 0; i < all.length; i++) {
+    if (all[i].textContent === opt) all[i].classList.add('selected');
+  }
+  document.getElementById('confirm-btn').disabled = false;
+  document.getElementById('confirm-btn').onclick = confirmTrait;
+}
 function showTraitPicker() {
   const trait = TRAITS[state.qIdx];
   document.getElementById('tp-label').textContent = trait.label;

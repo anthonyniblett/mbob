@@ -635,6 +635,22 @@ function drawMbob(canvasId,W,H){
 }
 
 
+
+function drawCheeks(ctx,cheeks,cx,cy,r){
+  if(!cheeks||cheeks.includes('Plain')) return;
+  ctx.save();
+  const chy=cy+r*.08, chx=r*.42;
+  if(cheeks.includes('Rosy Blush')){
+    ctx.fillStyle='#ff99bb'; ctx.globalAlpha=0.45;
+    ctx.beginPath(); ctx.ellipse(cx-chx,chy,r*.2,r*.12,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+chx,chy,r*.2,r*.12,0,0,Math.PI*2); ctx.fill();
+  } else if(cheeks.includes('Heart')){
+    ctx.globalAlpha=0.7;
+    drawHeart(ctx,cx-chx,chy-r*.06,r*.1,'#ff3366');
+    drawHeart(ctx,cx+chx,chy-r*.06,r*.1,'#ff3366');
+  }
+  ctx.restore();
+}
 function drawArms(ctx,arms,cx,cy,r,col){
   if(!arms) return;
   ctx.save(); ctx.fillStyle=col; ctx.strokeStyle=col; ctx.lineCap='round';
