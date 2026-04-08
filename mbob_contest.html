@@ -6,7 +6,6 @@
 <title>Mbob Contest — 4th Grade Maths Challenge</title>
 <style>
 
-
 :root {
   --bg:#0d1825; --card:#122030; --accent:#44aaff; --accent2:#88ddff;
   --gold:#ffe066; --text:#e8f4ff; --muted:#5580aa;
@@ -720,7 +719,7 @@ function drawMbob(canvasId,W,H){
   // NAME LABEL
   const title=m.title||''; const name=m.name||'';
   if(title||name){
-    ctx.save(); ctx.font=`bold ${Math.max(11,bodyR*0.13)}px Poppins,sans-serif`;
+    ctx.save(); ctx.font=`bold ${Math.max(11,bodyR*0.13)}px -apple-system,'Helvetica Neue',Arial,sans-serif`;
     ctx.fillStyle='#ffe066'; ctx.textAlign='center';
     ctx.fillText(`${title} ${name}`.trim(),cx,H-8);
     ctx.restore();

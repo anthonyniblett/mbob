@@ -6,8 +6,6 @@
 <title>Mbob Contest II — 4th Grade 1996-2001</title>
 <style>
 
-
-
 :root {
   --bg:#061510; --card:#0a2018; --accent:#22ddaa; --accent2:#88ffdd;
   --gold:#ffe066; --text:#e8f4ff; --muted:#5580aa;
@@ -370,7 +368,6 @@ const QUESTIONS = [
   { q: "2001 + (2000 − 1999 + 1998 − 1997 + 1996 − … + 2 − 1) = ?", opts: ["2001","3001","4001","4002"], answer: "3001" },
 ];
 
-
 // ── TRAIT DEFINITIONS: 19 traits, exactly 3 options each ──────
 const TRAITS = [
   { key:"color",    label:"Body Colour",
@@ -627,7 +624,7 @@ function drawMbob(canvasId,W,H){
   // NAME LABEL
   const title=m.title||''; const name=m.name||'';
   if(title||name){
-    ctx.save(); ctx.font=`bold ${Math.max(11,bodyR*0.13)}px Poppins,sans-serif`;
+    ctx.save(); ctx.font=`bold ${Math.max(11,bodyR*0.13)}px -apple-system,'Helvetica Neue',Arial,sans-serif`;
     ctx.fillStyle='#ffe066'; ctx.textAlign='center';
     ctx.fillText(`${title} ${name}`.trim(),cx,H-8);
     ctx.restore();
