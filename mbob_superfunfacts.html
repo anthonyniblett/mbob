@@ -6,6 +6,7 @@
 <title>Mbob Super Fun Facts — ＋ − × ÷</title>
 <style>
 
+
 :root {
   --bg: #1a0018; --card: #280025; --accent: #ff6eb4; --accent2: #ffb3d9;
   --gold: #ffe0f0; --text: #fff0f8; --muted: #8a4070;
@@ -506,11 +507,11 @@ const TRAITS = [
   },
   {
     key: "title", label: "Title",
-    opts: ["Captain","Doctor","Professor","Lady","Sir","The Great","Magnificent","Master","Baroness","Agent"]
+    opts: ["Captain","Doctor","Professor","Lady","Sir","The Great","The Magnificent","Master","Baroness","Agent","Admiral","Commander","Baron","Duke","General","Sergeant","Inspector","Wizard","Lord","Detective"]
   },
   {
     key: "name", label: "Surname",
-    opts: ["Swizzlestick","Wobblehat","Blorpington","Noodlefuzz","Zigglemax","Derpsworth","Flimflam","Snorkelsnoot","Bumblethwick","Quackledorf","Puffington","Gigglesnort","Wobblebottom","Snugglekins"]
+    opts: ["Swizzlestick","Wobblehat","Blorpington","Noodlefuzz","Zigglemax","Derpsworth","Flimflam","Snorkelsnoot","Bumblethwick","Quackledorf","Puffington","Gigglesnort","Wobblebottom","Snugglekins","Flibberwick","Splodgington","Wumblesnatch","Jigglepants","Rumblebottom","Snugglewump"]
   },
 ];
 
@@ -1134,6 +1135,7 @@ function lighten(hex) {
   } catch { return '#fff'; }
 }
 
+
 function darken(hex) {
   // crude darken
   try {
@@ -1223,211 +1225,60 @@ function drawCheeks(ctx, cheeks, cx, cy, r) {
 }
 
 // ── NOSE ──────────────────────────────────────────────────────
-function drawNose(ctx, nose, cx, cy, r) {
-  if (!nose || nose.includes('No Nose')) return;
+function drawNose(ctx,nose,cx,cy,r){
+  if(!nose||nose.includes('No')) return;
   ctx.save();
-  const ny = cy + r * 0.12;
-  if (nose.includes('Button') || nose.includes('Bunny')) {
-    ctx.fillStyle = '#dd6655';
-    ctx.beginPath(); ctx.arc(cx, ny, r*0.08, 0, Math.PI*2); ctx.fill();
-  } else if (nose.includes('Big Round')) {
-    ctx.fillStyle = '#cc5544';
-    ctx.beginPath(); ctx.arc(cx, ny, r*0.12, 0, Math.PI*2); ctx.fill();
-  } else if (nose.includes('Pig')) {
-    ctx.fillStyle = '#ff9999';
-    ctx.beginPath(); ctx.ellipse(cx, ny, r*0.13, r*0.09, 0, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#cc5566';
-    ctx.beginPath(); ctx.arc(cx - r*0.05, ny + r*0.02, r*0.03, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + r*0.05, ny + r*0.02, r*0.03, 0, Math.PI*2); ctx.fill();
-  } else if (nose.includes('Star')) {
-    ctx.fillStyle = '#ffee55';
-    drawStar(ctx, cx, ny, r*0.05, r*0.10, 5); ctx.fill();
-  } else if (nose.includes('Heart')) {
-    ctx.fillStyle = '#ff4488';
-    drawHeart(ctx, cx, ny - r*0.06, r*0.08);
-  } else if (nose.includes('Clown')) {
-    ctx.fillStyle = '#ff2200';
-    ctx.beginPath(); ctx.arc(cx, ny, r*0.11, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = '#ff6644';
-    ctx.beginPath(); ctx.arc(cx - r*0.03, ny - r*0.03, r*0.05, 0, Math.PI*2); ctx.fill();
-  } else {
-    // Bobbly default
-    ctx.fillStyle = '#dd6655';
-    ctx.beginPath(); ctx.arc(cx, ny, r*0.07, 0, Math.PI*2); ctx.fill();
+  const ny=cy+r*.18;
+
+  if(nose.includes('Tiny Dot')){
+    // Small but vivid pink dot with outline so it's always visible
+    ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=4;
+    ctx.fillStyle='#ff4488';
+    ctx.beginPath(); ctx.arc(cx,ny,r*.07,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.strokeStyle='#aa1144'; ctx.lineWidth=r*.025;
+    ctx.beginPath(); ctx.arc(cx,ny,r*.07,0,Math.PI*2); ctx.stroke();
+    // Shine
+    ctx.fillStyle='rgba(255,255,255,0.55)';
+    ctx.beginPath(); ctx.arc(cx-r*.025,ny-r*.025,r*.025,0,Math.PI*2); ctx.fill();
+
+  } else if(nose.includes('Round Button')){
+    // Big round button nose - prominent
+    ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=8;
+    // Dark outline first
+    ctx.fillStyle='#882200';
+    ctx.beginPath(); ctx.arc(cx,ny,r*.155,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+    // Main nose colour
+    ctx.fillStyle='#ff5533';
+    ctx.beginPath(); ctx.arc(cx,ny,r*.13,0,Math.PI*2); ctx.fill();
+    // Shine
+    ctx.fillStyle='rgba(255,255,255,0.5)';
+    ctx.beginPath(); ctx.arc(cx-r*.045,ny-r*.045,r*.05,0,Math.PI*2); ctx.fill();
+
+  } else if(nose.includes('Big Bobbly')){
+    // Three large overlapping balls like a clown nose
+    ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=10;
+    // Outlines
+    ctx.fillStyle='#991100';
+    ctx.beginPath(); ctx.arc(cx-r*.16,ny+r*.04,r*.145,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*.16,ny+r*.04,r*.145,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,ny-r*.06,r*.175,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+    // Main red balls
+    ctx.fillStyle='#ff2200';
+    ctx.beginPath(); ctx.arc(cx-r*.16,ny+r*.04,r*.12,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*.16,ny+r*.04,r*.12,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,ny-r*.06,r*.15,0,Math.PI*2); ctx.fill();
+    // Shines
+    ctx.fillStyle='rgba(255,255,255,0.45)';
+    ctx.beginPath(); ctx.arc(cx-r*.19,ny,r*.04,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*.13,ny,r*.04,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx-r*.03,ny-r*.1,r*.05,0,Math.PI*2); ctx.fill();
   }
   ctx.restore();
 }
 
-// ── MOUTH ─────────────────────────────────────────────────────
-function drawMouth(ctx, mouthSize, teeth, cx, cy, r) {
-  if (!mouthSize) return;
-  ctx.save();
-  const my = cy + r * 0.3;
-  const sizeMap = { "Tiny Dot Mouth": 0.06, "Small Smile": 0.12, "Medium Grin": 0.18, "Big Goofy Grin": 0.26, "Massive Toothy Smile": 0.34 };
-  const mw = r * (sizeMap[mouthSize] || 0.18);
-
-  ctx.strokeStyle = '#442211'; ctx.lineWidth = r * 0.045; ctx.lineCap = 'round';
-
-  if (mouthSize.includes('Tiny Dot')) {
-    ctx.fillStyle = '#552211';
-    ctx.beginPath(); ctx.arc(cx, my, r*0.04, 0, Math.PI*2); ctx.fill();
-  } else {
-    ctx.beginPath(); ctx.arc(cx, my - mw*0.3, mw, 0.2, Math.PI - 0.2); ctx.stroke();
-    // teeth inside mouth
-    if (teeth && !teeth.includes('No Teeth')) {
-      ctx.fillStyle = teeth.includes('Gold') ? '#ffcc00' : 'white';
-      const tw = mw * 0.8;
-      if (teeth.includes('Fang') || teeth.includes('Vampire')) {
-        ctx.fillStyle = 'white';
-        ctx.beginPath(); ctx.moveTo(cx - mw*0.3, my + mw*0.05); ctx.lineTo(cx - mw*0.2, my + mw*0.05); ctx.lineTo(cx - mw*0.22, my + mw*0.22); ctx.closePath(); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(cx + mw*0.2, my + mw*0.05); ctx.lineTo(cx + mw*0.3, my + mw*0.05); ctx.lineTo(cx + mw*0.22, my + mw*0.22); ctx.closePath(); ctx.fill();
-      } else if (teeth.includes('Buck')) {
-        ctx.fillStyle = 'white';
-        ctx.beginPath(); roundRect(ctx, cx - mw*0.22, my, mw*0.18, mw*0.25, 3); ctx.fill();
-        ctx.beginPath(); roundRect(ctx, cx + mw*0.04, my, mw*0.18, mw*0.25, 3); ctx.fill();
-      } else if (teeth.includes('Snaggletooth')) {
-        ctx.fillStyle = 'white';
-        ctx.beginPath(); roundRect(ctx, cx - mw*0.15, my, mw*0.12, mw*0.2, 2); ctx.fill();
-        ctx.fillStyle = '#ffee88';
-        ctx.beginPath(); roundRect(ctx, cx + mw*0.06, my, mw*0.10, mw*0.28, 2); ctx.fill();
-      } else if (teeth.includes('Gold')) {
-        ctx.fillStyle = '#ffcc00';
-        ctx.beginPath(); roundRect(ctx, cx - mw*0.08, my, mw*0.16, mw*0.2, 2); ctx.fill();
-        ctx.fillStyle = 'white';
-        ctx.beginPath(); roundRect(ctx, cx - mw*0.26, my, mw*0.14, mw*0.18, 2); ctx.fill();
-        ctx.beginPath(); roundRect(ctx, cx + mw*0.12, my, mw*0.14, mw*0.18, 2); ctx.fill();
-      } else {
-        // Perfect / Tiny / default - row of teeth
-        const numT = mouthSize.includes('Massive') ? 6 : 4;
-        const tw2 = (tw * 1.6) / numT;
-        for (let i = 0; i < numT; i++) {
-          ctx.beginPath(); roundRect(ctx, cx - tw*0.8 + i*tw2, my, tw2 - 2, mw*0.2, 2); ctx.fill();
-        }
-      }
-    }
-  }
-  ctx.restore();
-}
-
-// ── ARMS ──────────────────────────────────────────────────────
-function drawArms(ctx, arms, cx, cy, r, col) {
-  if (!arms || arms.includes('No Arms')) return;
-  ctx.save(); ctx.fillStyle = col; ctx.strokeStyle = col;
-  if (arms.includes('Stubby')) {
-    ctx.lineWidth = r*0.22; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(cx - r*0.9, cy - r*0.05); ctx.lineTo(cx - r*0.65, cy + r*0.1); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx + r*0.9, cy - r*0.05); ctx.lineTo(cx + r*0.65, cy + r*0.1); ctx.stroke();
-  } else if (arms.includes('Noodle')) {
-    ctx.lineWidth = r*0.12; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(cx - r*0.92, cy); ctx.bezierCurveTo(cx-r*1.15, cy-r*0.3, cx-r*1.2, cy+r*0.2, cx-r*1.05, cy+r*0.5); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx + r*0.92, cy); ctx.bezierCurveTo(cx+r*1.15, cy-r*0.3, cx+r*1.2, cy+r*0.2, cx+r*1.05, cy+r*0.5); ctx.stroke();
-  } else if (arms.includes('Chubby')) {
-    ctx.lineWidth = r*0.28; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(cx - r*0.9, cy); ctx.lineTo(cx - r*1.1, cy + r*0.15); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx + r*0.9, cy); ctx.lineTo(cx + r*1.1, cy + r*0.15); ctx.stroke();
-  } else if (arms.includes('T-Rex')) {
-    ctx.lineWidth = r*0.18; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(cx - r*0.82, cy - r*0.05); ctx.lineTo(cx - r*0.95, cy + r*0.2); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx + r*0.82, cy - r*0.05); ctx.lineTo(cx + r*0.95, cy + r*0.2); ctx.stroke();
-  } else if (arms.includes('Tentacle')) {
-    ctx.lineWidth = r*0.1; ctx.lineCap = 'round';
-    for (let i = 0; i < 3; i++) {
-      const oy = (i - 1) * r * 0.2;
-      ctx.beginPath(); ctx.moveTo(cx - r*0.88, cy + oy); ctx.bezierCurveTo(cx-r*1.15, cy+oy-r*0.2, cx-r*1.25, cy+oy+r*0.3, cx-r*1.1, cy+oy+r*0.55); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(cx + r*0.88, cy + oy); ctx.bezierCurveTo(cx+r*1.15, cy+oy-r*0.2, cx+r*1.25, cy+oy+r*0.3, cx+r*1.1, cy+oy+r*0.55); ctx.stroke();
-    }
-  } else if (arms.includes('Paws') || arms.includes('Fluffy')) {
-    ctx.lineWidth = r*0.26; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(cx - r*0.92, cy); ctx.lineTo(cx - r*1.12, cy + r*0.1); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx + r*0.92, cy); ctx.lineTo(cx + r*1.12, cy + r*0.1); ctx.stroke();
-    // paw pads
-    ctx.fillStyle = '#ffccbb';
-    ctx.beginPath(); ctx.arc(cx - r*1.12, cy + r*0.1, r*0.1, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx + r*1.12, cy + r*0.1, r*0.1, 0, Math.PI*2); ctx.fill();
-  } else {
-    ctx.lineWidth = r*0.18; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(cx - r*0.92, cy); ctx.lineTo(cx - r*1.1, cy + r*0.12); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx + r*0.92, cy); ctx.lineTo(cx + r*1.1, cy + r*0.12); ctx.stroke();
-  }
-  ctx.restore();
-}
-
-// ── SHOES ─────────────────────────────────────────────────────
-function drawShoes(ctx, shoes, cx, cy, r) {
-  if (!shoes || shoes.includes('No Shoes') || shoes.includes('bare')) return;
-  ctx.save();
-  const sy = cy + r * 0.82;
-  const sw = r * 0.28, sh = r * 0.15;
-
-  let shoeCol = '#ee4444', detailCol = '#ffffff';
-  if (shoes.includes('Cowboy')) { shoeCol = '#8B4513'; detailCol = '#d4a060'; }
-  else if (shoes.includes('Ballet')) { shoeCol = '#ffaacc'; detailCol = '#ff66aa'; }
-  else if (shoes.includes('Clown')) { shoeCol = '#ff3300'; detailCol = '#ffff00'; }
-  else if (shoes.includes('Rainbow')) { shoeCol = '#4488ff'; detailCol = '#ff44ff'; }
-  else if (shoes.includes('Sparkly')) { shoeCol = '#aa44ff'; detailCol = '#ffee00'; }
-  else if (shoes.includes('Rocket')) { shoeCol = '#aaaaaa'; detailCol = '#ffee00'; }
-  else if (shoes.includes('Polka')) { shoeCol = '#ff6600'; detailCol = '#ffffff'; }
-
-  // left shoe
-  ctx.fillStyle = shoeCol;
-  ctx.beginPath(); ctx.ellipse(cx - r*0.38, sy, sw, sh, -0.1, 0, Math.PI*2); ctx.fill();
-  ctx.fillStyle = detailCol;
-  if (shoes.includes('Clown')) { ctx.beginPath(); ctx.ellipse(cx - r*0.38, sy, sw*1.5, sh, -0.1, 0, Math.PI*2); ctx.restore(); ctx.save(); ctx.fillStyle = shoeCol; ctx.beginPath(); ctx.ellipse(cx - r*0.38, sy, sw, sh, -0.1, 0, Math.PI*2); ctx.fill(); }
-  if (shoes.includes('Sparkly') || shoes.includes('Rainbow')) {
-    ctx.globalAlpha = 0.7;
-    ctx.beginPath(); ctx.arc(cx - r*0.32, sy - sh*0.3, sh*0.25, 0, Math.PI*2); ctx.fill();
-  }
-  // right shoe
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = shoeCol;
-  ctx.beginPath(); ctx.ellipse(cx + r*0.38, sy, sw, sh, 0.1, 0, Math.PI*2); ctx.fill();
-  if (shoes.includes('Sparkly') || shoes.includes('Rainbow')) {
-    ctx.fillStyle = detailCol; ctx.globalAlpha = 0.7;
-    ctx.beginPath(); ctx.arc(cx + r*0.44, sy - sh*0.3, sh*0.25, 0, Math.PI*2); ctx.fill();
-  }
-  ctx.restore();
-}
-
-// ── TAIL ──────────────────────────────────────────────────────
-function drawTail(ctx, tail, cx, cy, r, col) {
-  if (!tail || tail.includes('No Tail')) return;
-  ctx.save();
-  if (tail.includes('Fox')) {
-    ctx.strokeStyle = '#ff9966'; ctx.lineWidth = r*0.18; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(cx + r*0.88, cy + r*0.22); ctx.bezierCurveTo(cx+r*1.4, cy, cx+r*1.5, cy-r*0.7, cx+r*1.15, cy-r*0.9); ctx.stroke();
-    ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(cx+r*1.15, cy-r*0.9, r*0.15, 0, Math.PI*2); ctx.fill();
-  } else if (tail.includes('Bunny')) {
-    ctx.fillStyle = 'white';
-    ctx.beginPath(); ctx.arc(cx + r*0.88, cy + r*0.38, r*0.16, 0, Math.PI*2); ctx.fill();
-  } else if (tail.includes('Dragon')) {
-    ctx.strokeStyle = '#55dd66'; ctx.lineWidth = r*0.14; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(cx + r*0.88, cy + r*0.28); ctx.bezierCurveTo(cx+r*1.3, cy+r*0.5, cx+r*1.5, cy, cx+r*1.2, cy-r*0.5); ctx.stroke();
-  } else if (tail.includes('Curly') || tail.includes('Pig')) {
-    ctx.strokeStyle = col; ctx.lineWidth = r*0.1; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.arc(cx + r*0.98, cy + r*0.3, r*0.2, 0, Math.PI*1.8); ctx.stroke();
-  } else if (tail.includes('Lightning')) {
-    ctx.strokeStyle = '#ffee00'; ctx.lineWidth = r*0.09;
-    ctx.beginPath(); ctx.moveTo(cx+r*0.9, cy+r*0.1); ctx.lineTo(cx+r*1.15, cy-r*0.1); ctx.lineTo(cx+r*1.05, cy-r*0.1); ctx.lineTo(cx+r*1.35, cy-r*0.45); ctx.stroke();
-  } else if (tail.includes('Raccoon') || tail.includes('Striped')) {
-    ctx.strokeStyle = '#555'; ctx.lineWidth = r*0.15; ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(cx + r*0.88, cy + r*0.22); ctx.bezierCurveTo(cx+r*1.35, cy, cx+r*1.4, cy-r*0.5, cx+r*1.1, cy-r*0.75); ctx.stroke();
-    ctx.strokeStyle = col; ctx.lineWidth = r*0.07;
-    for (let t = 0; t < 1; t += 0.28) {
-      const bx = cx+r*0.88 + (cx+r*1.1 - cx-r*0.88)*t;
-      const by = cy+r*0.22 + (cy-r*0.75 - cy-r*0.22)*t;
-      ctx.beginPath(); ctx.arc(bx, by, r*0.12, 0, Math.PI*2); ctx.stroke();
-    }
-  } else if (tail.includes('Peacock')) {
-    ctx.fillStyle = '#2255cc'; ctx.globalAlpha = 0.7;
-    for (let a = -0.6; a <= 0.6; a += 0.2) {
-      ctx.beginPath(); ctx.moveTo(cx+r*0.92, cy+r*0.25); ctx.lineTo(cx+r*1.45+Math.sin(a)*r*0.4, cy-r*0.5+Math.cos(a)*r*0.4); ctx.lineWidth = r*0.06; ctx.strokeStyle = '#3388ee'; ctx.stroke();
-      ctx.beginPath(); ctx.arc(cx+r*1.45+Math.sin(a)*r*0.4, cy-r*0.5+Math.cos(a)*r*0.4, r*0.09, 0, Math.PI*2); ctx.fill();
-    }
-  }
-  ctx.restore();
-}
-
-// ── HAT ───────────────────────────────────────────────────────
 function drawHat(ctx, hat, cx, cy, r) {
   if (!hat || hat.includes('No Hat')) return;
   ctx.save();

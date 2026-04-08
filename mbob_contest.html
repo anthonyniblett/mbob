@@ -6,6 +6,7 @@
 <title>Mbob Contest — 4th Grade Maths Challenge</title>
 <style>
 
+
 :root {
   --bg:#0d1825; --card:#122030; --accent:#44aaff; --accent2:#88ddff;
   --gold:#ffe066; --text:#e8f4ff; --muted:#5580aa;
@@ -514,9 +515,9 @@ const TRAITS = [
   { key:"pattern",  label:"Body Pattern",
     opts:["Plain","Polka Dots","Bold Stripes"] },
   { key:"title",    label:"Title",
-    opts:["Captain","Professor","The Magnificent"] },
+    opts:["Captain","Professor","The Magnificent","Doctor","Admiral","Commander","Baron","Lady","Sir","Duke","General","Sergeant","Inspector","Agent","Chief","Wizard","Master","Lord","Detective","Countess"] },
   { key:"name",     label:"Name",
-    opts:["Swizzlestick","Blorpington","Quackledorf","Noodlefuzz","Wobblehat","Gigglesnort","Snorkelsnoot","Bumblethwick","Derpsworth","Puffington"] },
+    opts:["Swizzlestick","Blorpington","Quackledorf","Noodlefuzz","Wobblehat","Gigglesnort","Snorkelsnoot","Bumblethwick","Derpsworth","Puffington","Flibberwick","Splodgington","Wumblesnatch","Crumblethwaite","Jigglepants","Squelchwhistle","Doodlebonk","Rumblebottom","Flapjackson","Snugglewump"] },
 ];
 
 const BODY_COLOURS = {
@@ -820,122 +821,53 @@ function drawEyebrows(ctx,brows,cx,cy,r){
 function drawNose(ctx,nose,cx,cy,r){
   if(!nose||nose.includes('No')) return;
   ctx.save();
-  const ny=cy+r*.12;
+  const ny=cy+r*.18;
+
   if(nose.includes('Tiny Dot')){
-    ctx.fillStyle='#cc5544'; ctx.beginPath(); ctx.arc(cx,ny,r*.04,0,Math.PI*2); ctx.fill();
+    // Small but vivid pink dot with outline so it's always visible
+    ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=4;
+    ctx.fillStyle='#ff4488';
+    ctx.beginPath(); ctx.arc(cx,ny,r*.07,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.strokeStyle='#aa1144'; ctx.lineWidth=r*.025;
+    ctx.beginPath(); ctx.arc(cx,ny,r*.07,0,Math.PI*2); ctx.stroke();
+    // Shine
+    ctx.fillStyle='rgba(255,255,255,0.55)';
+    ctx.beginPath(); ctx.arc(cx-r*.025,ny-r*.025,r*.025,0,Math.PI*2); ctx.fill();
+
   } else if(nose.includes('Round Button')){
-    ctx.fillStyle='#dd6655'; ctx.beginPath(); ctx.arc(cx,ny,r*.09,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#ee8877'; ctx.beginPath(); ctx.arc(cx-r*.03,ny-r*.03,r*.04,0,Math.PI*2); ctx.fill();
+    // Big round button nose - prominent
+    ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=8;
+    // Dark outline first
+    ctx.fillStyle='#882200';
+    ctx.beginPath(); ctx.arc(cx,ny,r*.155,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+    // Main nose colour
+    ctx.fillStyle='#ff5533';
+    ctx.beginPath(); ctx.arc(cx,ny,r*.13,0,Math.PI*2); ctx.fill();
+    // Shine
+    ctx.fillStyle='rgba(255,255,255,0.5)';
+    ctx.beginPath(); ctx.arc(cx-r*.045,ny-r*.045,r*.05,0,Math.PI*2); ctx.fill();
+
   } else if(nose.includes('Big Bobbly')){
-    ctx.fillStyle='#ff2200'; ctx.beginPath(); ctx.arc(cx,ny,r*.16,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#ff6644'; ctx.beginPath(); ctx.arc(cx-r*.04,ny-r*.04,r*.07,0,Math.PI*2); ctx.fill();
-  }
-  ctx.restore();
-}
-
-function drawMouth(ctx,mouth,cx,cy,r){
-  if(!mouth) return;
-  ctx.save(); ctx.strokeStyle='#441122'; ctx.lineCap='round';
-  const my=cy+r*.28;
-  if(mouth.includes('Tiny Smirk')){
-    ctx.lineWidth=r*.04;
-    ctx.beginPath(); ctx.moveTo(cx-r*.08,my); ctx.bezierCurveTo(cx,my-r*.04,cx+r*.1,my+r*.04,cx+r*.14,my-r*.02); ctx.stroke();
-  } else if(mouth.includes('Big Wide Grin')){
-    ctx.lineWidth=r*.055;
-    ctx.beginPath(); ctx.arc(cx,my-r*.06,r*.22,0.15,Math.PI-0.15); ctx.stroke();
-  } else if(mouth.includes('Giant Toothy')){
-    // Draw filled open mouth with teeth
-    ctx.fillStyle='#330011';
-    ctx.beginPath(); ctx.arc(cx,my-r*.05,r*.3,0.1,Math.PI-0.1); ctx.fill();
-    // Teeth
-    ctx.fillStyle='white';
-    const numT=5, tw=r*.44/numT;
-    for(let i=0;i<numT;i++){
-      roundRect(ctx,cx-r*.22+i*tw+1,my-r*.05,tw-2,r*.14,3); ctx.fill();
-    }
-    ctx.strokeStyle='#441122'; ctx.lineWidth=r*.05;
-    ctx.beginPath(); ctx.arc(cx,my-r*.05,r*.3,0.1,Math.PI-0.1); ctx.stroke();
-  }
-  ctx.restore();
-}
-
-function drawCheeks(ctx,cheeks,cx,cy,r){
-  if(!cheeks||cheeks.includes('Plain')) return;
-  ctx.save();
-  const chy=cy+r*.08, chx=r*.42;
-  if(cheeks.includes('Rosy Blush')){
-    ctx.fillStyle='#ff99bb'; ctx.globalAlpha=0.45;
-    ctx.beginPath(); ctx.ellipse(cx-chx,chy,r*.2,r*.12,0,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(cx+chx,chy,r*.2,r*.12,0,0,Math.PI*2); ctx.fill();
-  } else if(cheeks.includes('Heart')){
-    ctx.globalAlpha=0.7;
-    drawHeart(ctx,cx-chx,chy-r*.06,r*.1,'#ff3366');
-    drawHeart(ctx,cx+chx,chy-r*.06,r*.1,'#ff3366');
-  }
-  ctx.restore();
-}
-
-function drawArms(ctx,arms,cx,cy,r,col){
-  if(!arms) return;
-  ctx.save(); ctx.fillStyle=col; ctx.strokeStyle=col; ctx.lineCap='round';
-  if(arms.includes('Stubby')){
-    ctx.lineWidth=r*.2;
-    ctx.beginPath(); ctx.moveTo(cx-r*.88,cy); ctx.lineTo(cx-r*.98,cy+r*.12); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx+r*.88,cy); ctx.lineTo(cx+r*.98,cy+r*.12); ctx.stroke();
-  } else if(arms.includes('Normal')){
-    ctx.lineWidth=r*.18;
-    ctx.beginPath(); ctx.moveTo(cx-r*.92,cy); ctx.lineTo(cx-r*1.1,cy+r*.1); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx+r*.92,cy); ctx.lineTo(cx+r*1.1,cy+r*.1); ctx.stroke();
-    ctx.fillStyle='#ffccbb';
-    ctx.beginPath(); ctx.arc(cx-r*1.1,cy+r*.1,r*.1,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+r*1.1,cy+r*.1,r*.1,0,Math.PI*2); ctx.fill();
-  } else if(arms.includes('Super Long Noodle')){
-    ctx.lineWidth=r*.1;
-    ctx.beginPath(); ctx.moveTo(cx-r*.92,cy); ctx.bezierCurveTo(cx-r*1.3,cy-r*.4,cx-r*1.5,cy+r*.3,cx-r*1.35,cy+r*.7); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cx+r*.92,cy); ctx.bezierCurveTo(cx+r*1.3,cy-r*.4,cx+r*1.5,cy+r*.3,cx+r*1.35,cy+r*.7); ctx.stroke();
-    // little hands
-    ctx.fillStyle='#ffccbb';
-    ctx.beginPath(); ctx.arc(cx-r*1.35,cy+r*.7,r*.12,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+r*1.35,cy+r*.7,r*.12,0,Math.PI*2); ctx.fill();
-  }
-  ctx.restore();
-}
-
-function drawShoes(ctx,shoes,cx,cy,r){
-  if(!shoes||shoes.includes('No Shoes')) return;
-  ctx.save();
-  const sy=cy+r*.86;
-  if(shoes.includes('Normal')){
-    ctx.fillStyle='#2244aa';
-    ctx.beginPath(); ctx.ellipse(cx-r*.32,sy,r*.22,r*.13,0.1,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(cx+r*.32,sy,r*.22,r*.13,-0.1,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle='#ffffff';
-    ctx.beginPath(); ctx.arc(cx-r*.24,sy-r*.04,r*.06,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+r*.24,sy-r*.04,r*.06,0,Math.PI*2); ctx.fill();
-  } else if(shoes.includes('Enormous Clown')){
-    // HUGE red clown shoes
+    // Three large overlapping balls like a clown nose
+    ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=10;
+    // Outlines
+    ctx.fillStyle='#991100';
+    ctx.beginPath(); ctx.arc(cx-r*.16,ny+r*.04,r*.145,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*.16,ny+r*.04,r*.145,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,ny-r*.06,r*.175,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+    // Main red balls
     ctx.fillStyle='#ff2200';
-    ctx.beginPath(); ctx.ellipse(cx-r*.42,sy,r*.52,r*.2,-0.05,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(cx+r*.42,sy,r*.52,r*.2,0.05,0,Math.PI*2); ctx.fill();
-    // Pom-pom
-    ctx.fillStyle='#ffee00';
-    ctx.beginPath(); ctx.arc(cx-r*.68,sy-r*.06,r*.1,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+r*.68,sy-r*.06,r*.1,0,Math.PI*2); ctx.fill();
-  }
-  ctx.restore();
-}
-
-function drawTail(ctx,tail,cx,cy,r,col){
-  if(!tail||tail.includes('No Tail')) return;
-  ctx.save();
-  if(tail.includes('Short Curly')){
-    ctx.strokeStyle=col; ctx.lineWidth=r*.12; ctx.lineCap='round';
-    ctx.beginPath(); ctx.arc(cx+r*.98,cy+r*.28,r*.18,0,Math.PI*1.7); ctx.stroke();
-  } else if(tail.includes('Long Fluffy Fox')){
-    // Long thick fluffy tail
-    ctx.strokeStyle='#ff9966'; ctx.lineWidth=r*.22; ctx.lineCap='round';
-    ctx.beginPath(); ctx.moveTo(cx+r*.9,cy+r*.2); ctx.bezierCurveTo(cx+r*1.5,cy,cx+r*1.6,cy-r*.8,cx+r*1.2,cy-r*1.1); ctx.stroke();
-    ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(cx+r*1.2,cy-r*1.1,r*.18,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx-r*.16,ny+r*.04,r*.12,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*.16,ny+r*.04,r*.12,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,ny-r*.06,r*.15,0,Math.PI*2); ctx.fill();
+    // Shines
+    ctx.fillStyle='rgba(255,255,255,0.45)';
+    ctx.beginPath(); ctx.arc(cx-r*.19,ny,r*.04,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*.13,ny,r*.04,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx-r*.03,ny-r*.1,r*.05,0,Math.PI*2); ctx.fill();
   }
   ctx.restore();
 }
