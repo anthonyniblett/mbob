@@ -6,6 +6,7 @@
 <title>Mbob Contest — 4th Grade Maths Challenge</title>
 <style>
 
+
 :root {
   --bg:#0d1825; --card:#122030; --accent:#44aaff; --accent2:#88ddff;
   --gold:#ffe066; --text:#e8f4ff; --muted:#5580aa;
@@ -719,11 +720,102 @@ function drawMbob(canvasId,W,H){
   // NAME LABEL
   const title=m.title||''; const name=m.name||'';
   if(title||name){
-    ctx.save(); ctx.font=`bold ${Math.max(11,bodyR*0.13)}px -apple-system,'Helvetica Neue',Arial,sans-serif`;
+    ctx.save(); ctx.font=`bold ${Math.max(11,bodyR*0.13)}px Poppins,sans-serif`;
     ctx.fillStyle='#ffe066'; ctx.textAlign='center';
     ctx.fillText(`${title} ${name}`.trim(),cx,H-8);
     ctx.restore();
   }
+}
+
+
+function drawArms(ctx,arms,cx,cy,r,col){
+  if(!arms) return;
+  ctx.save(); ctx.fillStyle=col; ctx.strokeStyle=col; ctx.lineCap='round';
+  if(arms.includes('Stubby')){
+    ctx.lineWidth=r*.2;
+    ctx.beginPath(); ctx.moveTo(cx-r*.88,cy); ctx.lineTo(cx-r*.98,cy+r*.12); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+r*.88,cy); ctx.lineTo(cx+r*.98,cy+r*.12); ctx.stroke();
+  } else if(arms.includes('Normal')){
+    ctx.lineWidth=r*.18;
+    ctx.beginPath(); ctx.moveTo(cx-r*.92,cy); ctx.lineTo(cx-r*1.1,cy+r*.1); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+r*.92,cy); ctx.lineTo(cx+r*1.1,cy+r*.1); ctx.stroke();
+    ctx.fillStyle='#ffccbb';
+    ctx.beginPath(); ctx.arc(cx-r*1.1,cy+r*.1,r*.1,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*1.1,cy+r*.1,r*.1,0,Math.PI*2); ctx.fill();
+  } else if(arms.includes('Super Long Noodle')){
+    ctx.lineWidth=r*.1;
+    ctx.beginPath(); ctx.moveTo(cx-r*.92,cy); ctx.bezierCurveTo(cx-r*1.3,cy-r*.4,cx-r*1.5,cy+r*.3,cx-r*1.35,cy+r*.7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+r*.92,cy); ctx.bezierCurveTo(cx+r*1.3,cy-r*.4,cx+r*1.5,cy+r*.3,cx+r*1.35,cy+r*.7); ctx.stroke();
+    ctx.fillStyle='#ffccbb';
+    ctx.beginPath(); ctx.arc(cx-r*1.35,cy+r*.7,r*.12,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*1.35,cy+r*.7,r*.12,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawShoes(ctx,shoes,cx,cy,r){
+  if(!shoes||shoes.includes('No Shoes')) return;
+  ctx.save();
+  const sy=cy+r*.86;
+  if(shoes.includes('Normal')){
+    ctx.fillStyle='#2244aa';
+    ctx.beginPath(); ctx.ellipse(cx-r*.32,sy,r*.22,r*.13,0.1,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+r*.32,sy,r*.22,r*.13,-0.1,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ffffff';
+    ctx.beginPath(); ctx.arc(cx-r*.24,sy-r*.04,r*.06,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*.24,sy-r*.04,r*.06,0,Math.PI*2); ctx.fill();
+  } else if(shoes.includes('Enormous Clown')){
+    ctx.fillStyle='#ff2200';
+    ctx.beginPath(); ctx.ellipse(cx-r*.42,sy,r*.52,r*.2,-0.05,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx+r*.42,sy,r*.52,r*.2,0.05,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ffee00';
+    ctx.beginPath(); ctx.arc(cx-r*.68,sy-r*.06,r*.1,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*.68,sy-r*.06,r*.1,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawTail(ctx,tail,cx,cy,r,col){
+  if(!tail||tail.includes('No Tail')) return;
+  ctx.save();
+  if(tail.includes('Short Curly')){
+    ctx.strokeStyle=col; ctx.lineWidth=r*.12; ctx.lineCap='round';
+    ctx.beginPath(); ctx.arc(cx+r*.98,cy+r*.28,r*.18,0,Math.PI*1.7); ctx.stroke();
+  } else if(tail.includes('Long Fluffy Fox')){
+    ctx.strokeStyle='#ff9966'; ctx.lineWidth=r*.22; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(cx+r*.9,cy+r*.2); ctx.bezierCurveTo(cx+r*1.5,cy,cx+r*1.6,cy-r*.8,cx+r*1.2,cy-r*1.1); ctx.stroke();
+    ctx.fillStyle='white'; ctx.beginPath(); ctx.arc(cx+r*1.2,cy-r*1.1,r*.18,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawMouth(ctx,mouth,cx,cy,r){
+  if(!mouth) return;
+  ctx.save(); ctx.strokeStyle='#441122'; ctx.lineCap='round';
+  const my=cy+r*.28;
+  if(mouth.includes('Tiny Smirk')){
+    ctx.lineWidth=r*.04;
+    ctx.beginPath(); ctx.moveTo(cx-r*.08,my); ctx.bezierCurveTo(cx,my-r*.04,cx+r*.1,my+r*.04,cx+r*.14,my-r*.02); ctx.stroke();
+  } else if(mouth.includes('Big Wide Grin')){
+    ctx.lineWidth=r*.055;
+    ctx.beginPath(); ctx.arc(cx,my-r*.06,r*.22,0.15,Math.PI-0.15); ctx.stroke();
+  } else if(mouth.includes('Giant Toothy')){
+    ctx.fillStyle='#330011';
+    ctx.beginPath(); ctx.arc(cx,my-r*.05,r*.3,0.1,Math.PI-0.1); ctx.fill();
+    ctx.fillStyle='white';
+    const numT=5, tw=r*.44/numT;
+    for(let i=0;i<numT;i++){
+      ctx.beginPath();
+      ctx.moveTo(cx-r*.22+i*tw+1,my-r*.05);
+      ctx.lineTo(cx-r*.22+(i+1)*tw-1,my-r*.05);
+      ctx.lineTo(cx-r*.22+(i+1)*tw-1,my-r*.05+r*.14);
+      ctx.lineTo(cx-r*.22+i*tw+1,my-r*.05+r*.14);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.strokeStyle='#441122'; ctx.lineWidth=r*.05;
+    ctx.beginPath(); ctx.arc(cx,my-r*.05,r*.3,0.1,Math.PI-0.1); ctx.stroke();
+  }
+  ctx.restore();
 }
 
 function drawFluffyBody(ctx,cx,cy,r,col,pattern){
