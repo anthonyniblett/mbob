@@ -652,18 +652,18 @@ const TRAITS = [
     opts:["Jet Black","Bright Blue","Emerald Green","Amber Gold","Violet Purple","Ruby Red","Ocean Teal","Hot Pink","Silver Grey","Warm Brown","Icy White","Sunset Orange","Deep Navy","Neon Green","Crimson","Turquoise","Pale Gold","Magenta","Hazel","Electric Yellow","Sapphire","Olive","Rose Pink"] },
   { key:"ears",     label:"Ears",
     opts:["Tiny Nub Ears","Floppy Bunny Ears","Huge Elephant Ears"] },
-  { key:"nose",     label:"Nose",
-    opts:["Tiny Dot Nose","Round Button Nose","Big Bobbly Clown Nose"] },
+  { key:"nose",     label:"Nose Colour",
+    opts:["Red Nose","Blue Nose","Black Nose"] },
   { key:"mouth",    label:"Mouth",
     opts:["Tiny Smirk","Big Wide Grin","Giant Toothy Smile"] },
   { key:"arms",     label:"Arms",
     opts:["Stubby Little Arms","Normal Fluffy Arms","Super Long Noodle Arms"] },
   { key:"shoes",    label:"Shoes",
     opts:["No Shoes","Normal Shoes","Enormous Clown Shoes"] },
-  { key:"hair",     label:"Hair",
-    opts:["No Hair (bald!)","Small Tidy Hair","Giant Wild Hair"] },
+  { key:"hair",     label:"Hair Style",
+    opts:["No Hair (bald!)","Short Neat Hair","Flowing Curls","Giant Wild Hair","Tall Spiky Hair","Long Straight Hair"] },
   { key:"hairColor",label:"Hair Colour",
-    opts:["Golden Blonde","Fiery Red","Electric Blue"] },
+    opts:["Golden Blonde","Fiery Red","Electric Blue","Jet Black","Snow White","Forest Green","Hot Pink","Bright Purple","Burnt Orange","Turquoise"] },
   { key:"tail",     label:"Tail",
     opts:["No Tail","Short Curly Tail","Long Fluffy Fox Tail"] },
   { key:"hat",      label:"Hat",
@@ -700,7 +700,7 @@ const EYE_COLOURS = {
   "Pale Gold":"#ddbb55","Magenta":"#cc0088","Hazel":"#886633",
   "Electric Yellow":"#ffee00","Sapphire":"#0033aa","Olive":"#667722","Rose Pink":"#ff88aa",
 };
-const HAIR_COLOURS = { "Golden Blonde":"#ffdd55","Fiery Red":"#ff3322","Electric Blue":"#2244ff" };
+const HAIR_COLOURS = { "Golden Blonde":"#ffdd55","Fiery Red":"#ff3322","Electric Blue":"#2244ff","Jet Black":"#111122","Snow White":"#f0f0ff","Forest Green":"#228833","Hot Pink":"#ff44aa","Bright Purple":"#9922ee","Burnt Orange":"#ee6600","Turquoise":"#00ccbb" };
 
 // ── GAME STATE ─────────────────────────────────────────────────
 let state = { lives:3, qIdx:0, wrongStreak:0, pool:[], mbob:{}, selectedTrait:null, awaitingTrait:false };
@@ -721,7 +721,7 @@ function startGame() {
   crypto.getRandomValues(seedArr);
   const offset=seedArr[0]%QUESTIONS.length;
   const rotated=[...QUESTIONS.slice(offset),...QUESTIONS.slice(0,offset)];
-  state={ lives:3, qIdx:0, wrongStreak:0, pool:shuffle(rotated).slice(0,20),
+  state={ lives:3, qIdx:0, wrongStreak:0, pool:shuffle(rotated).slice(0,19),
           mbob:{}, selectedTrait:null, awaitingTrait:false };
   showScreen('game');
   renderQuestion();
@@ -735,9 +735,9 @@ function showScreen(n){
 function renderQuestion() {
   const q=state.pool[state.qIdx];
   const trait=TRAITS[state.qIdx];
-  const pct=(state.qIdx/20)*100;
+  const pct=(state.qIdx/19)*100;
   document.getElementById('prog-fill').style.width=pct+'%';
-  document.getElementById('prog-label').textContent=`Question ${state.qIdx+1} of 20`;
+  document.getElementById('prog-label').textContent=`Question ${state.qIdx+1} of 19`;
   document.getElementById('step-badge').textContent=`Q${state.qIdx+1} — Unlock: ${trait.label.toUpperCase()}`;
   document.getElementById('q-text').textContent=q.q;
   for(let i=1;i<=3;i++) document.getElementById('h'+i).classList.toggle('lost',i>state.lives);
@@ -802,36 +802,46 @@ function selectTrait(opt) {
   document.getElementById('confirm-btn').onclick = confirmTrait;
 }
 function showTraitPicker(){
-  const trait=TRAITS[state.qIdx];
-  document.getElementById('tp-label').textContent=trait.label;
-  const cont=document.getElementById('tp-opts');
-  cont.innerHTML='';
-  trait.opts.forEach(function(opt){
-    const btn=document.createElement('button');
-    btn.className='tp-opt';
-    btn.textContent=opt;
-    btn.onclick=function(){
-      const all=document.querySelectorAll('.tp-opt');
-      for(let i=0;i<all.length;i++) all[i].classList.remove('selected');
-      btn.classList.add('selected');
-      state.selectedTrait=opt;
-      const cb=document.getElementById('confirm-btn');
-      cb.disabled=false;
-      cb.onclick=confirmTrait;
-    };
-    cont.appendChild(btn);
-  });
-  const cb=document.getElementById('confirm-btn');
-  cb.disabled=true;
-  cb.onclick=confirmTrait;
+  var trait = TRAITS[state.qIdx];
+  var isLast = (state.qIdx === TRAITS.length - 1);
+  var label = isLast ? "Tap a name to finish!" : trait.label;
+  document.getElementById('tp-label').textContent = label;
+  var cont = document.getElementById('tp-opts');
+  cont.innerHTML = '';
+  var opts = trait.opts;
+  for (var i = 0; i < opts.length; i++) {
+    (function(opt) {
+      var btn = document.createElement('button');
+      btn.className = 'tp-opt';
+      btn.textContent = opt;
+      btn.onclick = function() {
+        var all = document.querySelectorAll('.tp-opt');
+        for (var j = 0; j < all.length; j++) all[j].classList.remove('selected');
+        btn.classList.add('selected');
+        state.selectedTrait = opt;
+        if (isLast) {
+          setTimeout(function() { confirmTrait(); }, 300);
+        } else {
+          var cb = document.getElementById('confirm-btn');
+          cb.disabled = false;
+          cb.onclick = confirmTrait;
+        }
+      };
+      cont.appendChild(btn);
+    })(opts[i]);
+  }
+  var cb = document.getElementById('confirm-btn');
+  cb.disabled = true;
+  cb.onclick = confirmTrait;
+  cb.style.display = isLast ? 'none' : '';
   document.getElementById('trait-picker').classList.add('show');
-  state.awaitingTrait=true;
+  state.awaitingTrait = true;
 }
 
 function confirmTrait(){
   state.mbob[TRAITS[state.qIdx].key]=state.selectedTrait;
   state.awaitingTrait=false; state.wrongStreak=0; state.qIdx++;
-  if(state.qIdx>=20) winGame(); else renderQuestion();
+  if(state.qIdx>=19) winGame(); else renderQuestion();
 }
 
 function renderChips(){
@@ -1099,56 +1109,21 @@ function drawEyebrows(ctx,brows,cx,cy,r){
 }
 
 function drawNose(ctx,nose,cx,cy,r){
-  if(!nose||nose.includes('No')) return;
+  if(!nose) return;
   ctx.save();
-  const ny=cy+r*.18;
-
-  if(nose.includes('Tiny Dot')){
-    // Small but vivid pink dot with outline so it's always visible
-    ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=4;
-    ctx.fillStyle='#ff4488';
-    ctx.beginPath(); ctx.arc(cx,ny,r*.07,0,Math.PI*2); ctx.fill();
-    ctx.shadowBlur=0;
-    ctx.strokeStyle='#aa1144'; ctx.lineWidth=r*.025;
-    ctx.beginPath(); ctx.arc(cx,ny,r*.07,0,Math.PI*2); ctx.stroke();
-    // Shine
-    ctx.fillStyle='rgba(255,255,255,0.55)';
-    ctx.beginPath(); ctx.arc(cx-r*.025,ny-r*.025,r*.025,0,Math.PI*2); ctx.fill();
-
-  } else if(nose.includes('Round Button')){
-    // Big round button nose - prominent
-    ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=8;
-    // Dark outline first
-    ctx.fillStyle='#882200';
-    ctx.beginPath(); ctx.arc(cx,ny,r*.155,0,Math.PI*2); ctx.fill();
-    ctx.shadowBlur=0;
-    // Main nose colour
-    ctx.fillStyle='#ff5533';
-    ctx.beginPath(); ctx.arc(cx,ny,r*.13,0,Math.PI*2); ctx.fill();
-    // Shine
-    ctx.fillStyle='rgba(255,255,255,0.5)';
-    ctx.beginPath(); ctx.arc(cx-r*.045,ny-r*.045,r*.05,0,Math.PI*2); ctx.fill();
-
-  } else if(nose.includes('Big Bobbly')){
-    // Three large overlapping balls like a clown nose
-    ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=10;
-    // Outlines
-    ctx.fillStyle='#991100';
-    ctx.beginPath(); ctx.arc(cx-r*.16,ny+r*.04,r*.145,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+r*.16,ny+r*.04,r*.145,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx,ny-r*.06,r*.175,0,Math.PI*2); ctx.fill();
-    ctx.shadowBlur=0;
-    // Main red balls
-    ctx.fillStyle='#ff2200';
-    ctx.beginPath(); ctx.arc(cx-r*.16,ny+r*.04,r*.12,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+r*.16,ny+r*.04,r*.12,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx,ny-r*.06,r*.15,0,Math.PI*2); ctx.fill();
-    // Shines
-    ctx.fillStyle='rgba(255,255,255,0.45)';
-    ctx.beginPath(); ctx.arc(cx-r*.19,ny,r*.04,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+r*.13,ny,r*.04,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx-r*.03,ny-r*.1,r*.05,0,Math.PI*2); ctx.fill();
-  }
+  var ny = cy + r * 0.18;
+  var col = '#ff2200';
+  if(nose.includes('Blue')) col = '#2255ff';
+  if(nose.includes('Black')) col = '#111111';
+  // Dark outline
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.beginPath(); ctx.arc(cx, ny, r*0.10, 0, Math.PI*2); ctx.fill();
+  // Nose colour
+  ctx.fillStyle = col;
+  ctx.beginPath(); ctx.arc(cx, ny, r*0.085, 0, Math.PI*2); ctx.fill();
+  // Shine
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.beginPath(); ctx.arc(cx - r*0.03, ny - r*0.03, r*0.03, 0, Math.PI*2); ctx.fill();
   ctx.restore();
 }
 
@@ -1193,18 +1168,29 @@ function drawAccessory(ctx,acc,cx,cy,r){
 function drawHair(ctx,hair,colorName,col,cx,cy,r){
   if(!hair||hair.includes('No Hair')||hair.includes('bald')) return;
   ctx.save();
-  if(hair.includes('Small Tidy')){
-    // Neat small cap of hair
+
+  if(hair.includes('Short Neat')){
+    // Neat short cap of hair
     ctx.fillStyle=col;
     ctx.beginPath(); ctx.arc(cx,cy-r*.68,r*.48,Math.PI+0.25,Math.PI*2-0.25); ctx.fill();
     ctx.beginPath(); ctx.ellipse(cx-r*.42,cy-r*.42,r*.15,r*.1,-0.3,0,Math.PI*2); ctx.fill();
     ctx.beginPath(); ctx.ellipse(cx+r*.42,cy-r*.42,r*.15,r*.1,0.3,0,Math.PI*2); ctx.fill();
+
+  } else if(hair.includes('Flowing Curls')){
+    // Curly flowing hair
+    ctx.fillStyle=col;
+    ctx.beginPath(); ctx.arc(cx,cy-r*.7,r*.52,Math.PI+0.1,Math.PI*2-0.1); ctx.fill();
+    // Curls hanging down sides
+    ctx.lineWidth=r*.13; ctx.strokeStyle=col; ctx.lineCap='round';
+    ctx.beginPath(); ctx.arc(cx-r*.62,cy-r*.18,r*.22,Math.PI*1.2,Math.PI*2.0); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx-r*.52,cy+r*.08,r*.18,Math.PI*1.3,Math.PI*2.1); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx+r*.62,cy-r*.18,r*.22,Math.PI*0,Math.PI*0.8); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx+r*.52,cy+r*.08,r*.18,Math.PI*(-0.1),Math.PI*0.7); ctx.stroke();
+
   } else if(hair.includes('Giant Wild')){
     // Enormous wild hair shooting out in all directions
     ctx.fillStyle=col;
-    // Big base
     ctx.beginPath(); ctx.arc(cx,cy-r*.65,r*.8,Math.PI+0.1,Math.PI*2-0.1); ctx.fill();
-    // Wild spiky bits sticking way out
     ctx.lineWidth=r*.12; ctx.strokeStyle=col; ctx.lineCap='round';
     const spikes=[
       [-r*.7,cy-r*.62,-r*1.2,cy-r*1.1],
@@ -1218,11 +1204,37 @@ function drawHair(ctx,hair,colorName,col,cx,cy,r){
     spikes.forEach(([x1,y1,x2,y2])=>{
       ctx.beginPath(); ctx.moveTo(cx+x1,y1); ctx.lineTo(cx+x2,y2); ctx.stroke();
     });
+
+  } else if(hair.includes('Tall Spiky')){
+    // Tall dramatic spikes pointing straight up
+    ctx.fillStyle=col;
+    ctx.beginPath(); ctx.arc(cx,cy-r*.65,r*.5,Math.PI+0.2,Math.PI*2-0.2); ctx.fill();
+    ctx.lineWidth=r*.11; ctx.strokeStyle=col; ctx.lineCap='round';
+    const spikes2=[
+      [0,cy-r*.82,0,cy-r*1.5],
+      [-r*.25,cy-r*.78,-r*.28,cy-r*1.38],
+      [r*.25,cy-r*.78,r*.28,cy-r*1.38],
+      [-r*.48,cy-r*.62,-r*.55,cy-r*1.1],
+      [r*.48,cy-r*.62,r*.55,cy-r*1.1],
+    ];
+    spikes2.forEach(([x1,y1,x2,y2])=>{
+      ctx.beginPath(); ctx.moveTo(cx+x1,y1); ctx.lineTo(cx+x2,y2); ctx.stroke();
+    });
+
+  } else if(hair.includes('Long Straight')){
+    // Long straight hair falling down the sides
+    ctx.fillStyle=col;
+    ctx.beginPath(); ctx.arc(cx,cy-r*.68,r*.5,Math.PI+0.15,Math.PI*2-0.15); ctx.fill();
+    // Long straight sections down sides
+    ctx.lineWidth=r*.18; ctx.strokeStyle=col; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(cx-r*.55,cy-r*.5); ctx.lineTo(cx-r*.62,cy+r*.6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-r*.38,cy-r*.55); ctx.lineTo(cx-r*.42,cy+r*.7); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+r*.55,cy-r*.5); ctx.lineTo(cx+r*.62,cy+r*.6); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx+r*.38,cy-r*.55); ctx.lineTo(cx+r*.42,cy+r*.7); ctx.stroke();
   }
   ctx.restore();
 }
 
-// ── HELPERS ───────────────────────────────────────────────────
 function roundRect(ctx,x,y,w,h,r){
   ctx.beginPath();
   ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
@@ -1254,7 +1266,7 @@ function darken(hex){
 
 // ── GAME OVER / WIN ───────────────────────────────────────────
 function gameOver(){
-  const pct=Math.round((state.qIdx/20)*100);
+  const pct=Math.round((state.qIdx/19)*100);
   document.getElementById('go-pct').textContent=pct+'%';
   document.getElementById('go-pct2').textContent=pct+'%';
   drawMbob('go-canvas',320,300);
